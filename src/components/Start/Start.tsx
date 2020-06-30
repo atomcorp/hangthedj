@@ -1,36 +1,8 @@
-import React, {useReducer} from 'react';
-import immer from 'immer';
+import React from 'react';
 
-const defaultState = {
-  players: [
-    {
-      name: 'Tom',
-      score: 0,
-    },
-    {
-      name: 'Amy',
-      score: 0,
-    },
-  ],
-};
+import {playersType, dispatchType} from 'types';
 
-const reducer = (state: stateType, action: actionType): stateType => {
-  return immer(state, (draft) => {
-    switch (action.type) {
-      case 'players/add':
-        draft.players.push({
-          name: action.payload,
-          score: 0,
-        });
-        break;
-      default:
-        break;
-    }
-  });
-};
-
-const Start = (): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, defaultState);
+const Start = (props: propTypes): JSX.Element => {
   return (
     <section>
       <h1>Amy and Tom&apos;s game</h1>
@@ -43,7 +15,7 @@ const Start = (): JSX.Element => {
             const data = new FormData(target);
             for (const pair of data) {
               if (pair[0] === 'name') {
-                dispatch({
+                props.dispatch({
                   type: 'players/add',
                   payload: pair[1] as string,
                 });
@@ -57,7 +29,7 @@ const Start = (): JSX.Element => {
       </section>
 
       <section>
-        {state.players.map((player, i) => (
+        {props.players.map((player, i) => (
           <div key={i}>
             {player.name} ({player.score})
           </div>
@@ -67,20 +39,9 @@ const Start = (): JSX.Element => {
   );
 };
 
-type playerType = {
-  name: string;
-  score: number;
+type propTypes = {
+  players: playersType;
+  dispatch: dispatchType;
 };
-
-type stateType = {
-  players: playerType[];
-};
-
-type dispatchAddPlayer = {
-  type: string;
-  payload: string;
-};
-
-type actionType = dispatchAddPlayer;
 
 export default Start;
