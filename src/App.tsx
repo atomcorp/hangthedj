@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react';
+import React, {useReducer, useEffect} from 'react';
 import immer from 'immer';
 
 import './App.css';
@@ -35,9 +35,35 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
   });
 };
 
+type googleSheetsType = {
+  feed: {
+    entry: {
+      gs$cell: {
+        $t: string;
+        row: string;
+        col: string;
+      };
+    }[];
+  };
+};
+
 function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, defaultState);
-
+  useEffect(() => {
+    fetch(
+      'https://spreadsheets.google.com/feeds/cells/1KwGMfgab2Mq0Zy8grS6fQLp8fqu9Qoikwb8qWg7OWqc/1/public/full?alt=json'
+    )
+      .then((res) => res.json())
+      .then((res: googleSheetsType) => {
+        console.log(
+          res.feed.entry.map(({gs$cell}) => ({
+            name: gs$cell.$t,
+            row: gs$cell.row,
+            ccolel: gs$cell.col,
+          }))
+        );
+      });
+  }, []);
   return (
     <div className="App">
       <Start players={state.players} dispatch={dispatch} />
