@@ -4,21 +4,25 @@ export type cardsType = cardType[];
 export type playerType = {
   name: string;
   score: number;
+  id: string;
 };
 
 export type cardType = {
   prompt: string;
   category?: string;
+  id: string;
 };
+
+export type gameStateType = 'start' | 'inplay' | 'end';
 
 export type stateType = {
   players: playerType[];
-  cards: cardType[];
+  gameState: gameStateType;
 };
 
 export type actionTypes =
   | {type: 'players/add'; payload: string}
-  | {type: 'cards/init'; payload: cardsType};
+  | {type: 'game/start'};
 
 export type dispatchType = React.Dispatch<actionTypes>;
 

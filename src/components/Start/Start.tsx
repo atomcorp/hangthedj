@@ -5,7 +5,6 @@ import {playersType, dispatchType} from 'types';
 const Start = (props: propTypes): JSX.Element => {
   return (
     <section>
-      <h1>Amy and Tom&apos;s game</h1>
       <section>
         <h2>Add players</h2>
         <form
@@ -34,6 +33,15 @@ const Start = (props: propTypes): JSX.Element => {
             {player.name} ({player.score})
           </div>
         ))}
+      </section>
+      <section>
+        <button
+          onClick={() => {
+            props.dispatch({type: 'game/start'});
+          }}
+        >
+          Start
+        </button>
       </section>
     </section>
   );

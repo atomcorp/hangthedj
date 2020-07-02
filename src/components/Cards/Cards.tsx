@@ -1,6 +1,6 @@
 import React from 'react';
 
-import {stateType, actionTypes, googleSheetsType, cardsType} from 'types';
+import {cardsType} from 'types';
 
 const Cards = (props: propsType): JSX.Element => {
   return (
