@@ -13,16 +13,25 @@ export type cardType = {
   id: string;
 };
 
-export type gameStateType = 'start' | 'inplay' | 'end';
+export type gameStateType = 'start' | 'inplay' | 'finished';
 
 export type stateType = {
   players: playerType[];
   gameState: gameStateType;
 };
 
+export type roundType = {
+  [id: string]: number;
+};
+
 export type actionTypes =
   | {type: 'players/add'; payload: string}
-  | {type: 'game/start'};
+  | {type: 'game/start'}
+  | {
+      type: 'game/scores';
+      payload: roundType;
+    }
+  | {type: 'game/end'};
 
 export type dispatchType = React.Dispatch<actionTypes>;
 

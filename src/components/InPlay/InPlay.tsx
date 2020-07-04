@@ -1,14 +1,34 @@
 import React, {useEffect, useReducer} from 'react';
 import immer from 'immer';
 
-import {googleSheetsType, cardsType, playersType} from 'types';
+import {
+  googleSheetsType,
+  cardsType,
+  playersType,
+  dispatchType,
+  roundType,
+} from 'types';
+import css from './InPlay.module.css';
 
 const defaultState = {
   cards: [],
   deck: [],
-  stage: 'pending', // pending or picking or empty
+  stage: 'waiting', // waiting or picking or empty
   currentPlayerId: null,
   currentCardId: null,
+};
+
+const getNextPlayerId = (
+  currentPlayerId: string,
+  players: playersType
+): string => {
+  const currentPlayerIndex = players.findIndex(
+    (player) => player.id === currentPlayerId
+  );
+  if (currentPlayerIndex + 1 === players.length) {
+    return players[0].id;
+  }
+  return players[currentPlayerIndex + 1].id;
 };
 
 const reducer = (state: stateType, action: actionType): stateType => {
@@ -25,8 +45,16 @@ const reducer = (state: stateType, action: actionType): stateType => {
         if (state.deck.length > 0) {
           draft.stage = 'picking';
           draft.currentCardId = state.deck[0];
-          draft.deck.shift();
+          draft.deck = draft.deck.filter((_, i) => i !== 0);
         } else {
+          draft.stage = 'empty';
+        }
+        break;
+      case 'inplay/endround':
+        draft.stage = 'waiting';
+        draft.currentPlayerId = action.payload;
+        draft.currentCardId = null;
+        if (state.deck.length === 0) {
           draft.stage = 'empty';
         }
         break;
@@ -63,21 +91,20 @@ const InPlay = (props: propsType): JSX.Element => {
         }, []);
         dispatch({
           type: 'inplay/init',
-          payload: {cards, defaultPlayerId: props.players[0].id},
+          payload: {cards: cards, defaultPlayerId: props.players[0].id},
         });
       });
   }, [props.players[0].id]);
-
-  const nextPlayer = props.players.find(
+  const currentPlayer = props.players.find(
     (player) => player.id === state.currentPlayerId
   );
   const nextCard = state.cards.find((card) => card.id === state.currentCardId);
   return (
     <section>
-      {state.stage === 'pending' && (
+      {state.stage === 'waiting' && (
         <div>
           Pass the phone to{' '}
-          {nextPlayer ? nextPlayer.name : props.players[0].name}
+          {currentPlayer ? currentPlayer.name : props.players[0].name}
           <button
             onClick={() => {
               dispatch({type: 'inplay/draw'});
@@ -87,12 +114,95 @@ const InPlay = (props: propsType): JSX.Element => {
           </button>
         </div>
       )}
+      {state.stage === 'empty' && (
+        <div>
+          <p>You have used all the cards</p>
+          <button
+            onClick={() => {
+              props.appDispatch({type: 'game/end'});
+            }}
+          >
+            Finish
+          </button>
+        </div>
+      )}
       {state.stage === 'picking' && (
         <div>
+          <p>
+            Pick a song based on the prompt. When ready tell everyone the
+            category and press play
+          </p>
           <div>Category: {nextCard?.category}</div>
           <h4>
             <strong>Prompt: {nextCard?.prompt}</strong>
           </h4>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const target = e.target as HTMLFormElement;
+              const data = new FormData(target);
+              const result = [...data].reduce((acc, [, value]) => {
+                const playerid = value as string;
+                if (playerid === 'null') {
+                  return acc;
+                }
+                if (playerid in acc) {
+                  ++acc[playerid];
+                } else {
+                  acc[playerid] = 1;
+                }
+                return acc;
+              }, {} as roundType);
+              props.appDispatch({
+                type: 'game/scores',
+                payload: result,
+              });
+              if (state.currentPlayerId != null) {
+                dispatch({
+                  type: 'inplay/endround',
+                  payload: getNextPlayerId(
+                    state.currentPlayerId,
+                    props.players
+                  ),
+                });
+              }
+            }}
+          >
+            <label className={css.choice} htmlFor="name">
+              Artist:{' '}
+              <select name="artist">
+                <option value="null">-</option>
+                {props.players.map((player, i) => (
+                  <option key={i} value={player.id}>
+                    {player.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={css.choice} htmlFor="song">
+              Song:{' '}
+              <select name="song">
+                <option value="null">-</option>
+                {props.players.map((player, i) => (
+                  <option key={i} value={player.id}>
+                    {player.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className={css.choice} htmlFor="category">
+              Category:{' '}
+              <select name="category">
+                <option value="null">-</option>
+                {props.players.map((player, i) => (
+                  <option key={i} value={player.id}>
+                    {player.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <button>Done</button>
+          </form>
         </div>
       )}
     </section>
@@ -101,6 +211,7 @@ const InPlay = (props: propsType): JSX.Element => {
 
 type propsType = {
   players: playersType;
+  appDispatch: dispatchType;
 };
 
 type stateType = {
@@ -118,6 +229,10 @@ type actionType =
     }
   | {
       type: 'inplay/draw';
+    }
+  | {
+      type: 'inplay/endround';
+      payload: string;
     };
 
 export default InPlay;

@@ -1,4 +1,4 @@
-import React, {useReducer, useEffect} from 'react';
+import React, {useReducer} from 'react';
 import immer from 'immer';
 
 import './App.css';
@@ -7,16 +7,10 @@ import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import {getId} from 'utils';
 
-import {
-  stateType,
-  actionTypes,
-  googleSheetsType,
-  cardsType,
-  gameStateType,
-} from 'types';
+import {stateType, actionTypes, gameStateType} from 'types';
 
 const defaultState = {
-  gameState: 'inplay' as gameStateType,
+  gameState: 'start' as gameStateType,
   players: [
     {
       name: 'Tom',
@@ -44,6 +38,16 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
       case 'game/start':
         draft.gameState = 'inplay';
         break;
+      case 'game/scores':
+        draft.players.forEach((player) => {
+          if (player.id in action.payload) {
+            player.score += action.payload[player.id];
+          }
+        });
+        break;
+      case 'game/end':
+        draft.gameState = 'finished';
+        break;
       default:
         break;
     }
@@ -58,7 +62,29 @@ function App(): JSX.Element {
       {state.gameState === 'start' && (
         <Start players={state.players} dispatch={dispatch} />
       )}
-      {state.gameState === 'inplay' && <InPlay players={state.players} />}
+      {state.gameState === 'inplay' && (
+        <InPlay players={state.players} appDispatch={dispatch} />
+      )}
+      {state.gameState === 'finished' && (
+        <table>
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            {[...state.players]
+              .sort((a, b) => (a.score < b.score ? 1 : -1))
+              .map((player, i) => (
+                <tr key={i}>
+                  <td>{player.name}</td>
+                  <td>{player.score}</td>
+                </tr>
+              ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
