@@ -1,8 +1,6 @@
 import React, {useReducer} from 'react';
 import immer from 'immer';
 
-import './App.css';
-
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import {getId} from 'utils';

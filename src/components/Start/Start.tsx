@@ -2,13 +2,16 @@ import React, {useState} from 'react';
 
 import {playersType, dispatchType} from 'types';
 
+import css from './Start.module.css';
+
 const Start = (props: propTypes): JSX.Element => {
   const [name, setName] = useState('');
   return (
     <section>
-      <section>
-        <h2>Add players</h2>
+      <fieldset>
+        <legend>Add players</legend>
         <form
+          className={css.addnew}
           onSubmit={(e) => {
             e.preventDefault();
             setName('');
@@ -32,7 +35,7 @@ const Start = (props: propTypes): JSX.Element => {
           />
           <input type="submit" value="Add"></input>
         </form>
-      </section>
+      </fieldset>
 
       <section>
         {props.players.map((player, i) => (

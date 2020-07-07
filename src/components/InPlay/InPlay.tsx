@@ -9,6 +9,7 @@ import {
   roundType,
 } from 'types';
 import css from './InPlay.module.css';
+import {disconnect} from 'process';
 
 const defaultState = {
   cards: [],
@@ -57,6 +58,9 @@ const reducer = (state: stateType, action: actionType): stateType => {
         if (state.deck.length === 0) {
           draft.stage = 'empty';
         }
+        break;
+      case 'inplay/scoring':
+        draft.stage = 'scoring';
         break;
       case 'inplay/skip':
         {
@@ -114,8 +118,10 @@ const InPlay = (props: propsType): JSX.Element => {
     <section>
       {state.stage === 'waiting' && (
         <div>
-          Pass the phone to{' '}
-          {currentPlayer ? currentPlayer.name : props.players[0].name}
+          <p>
+            Pass the phone to{' '}
+            {currentPlayer ? currentPlayer.name : props.players[0].name}
+          </p>
           <br />
           <button
             onClick={() => {
@@ -140,23 +146,32 @@ const InPlay = (props: propsType): JSX.Element => {
       )}
       {state.stage === 'picking' && (
         <div>
-          <p>
-            Pick a song based on the prompt. When ready tell everyone the
-            category and press play
+          <p className={css.prompt}>
+            Choose a song that fits the theme:{' '}
+            <strong>{nextCard?.prompt}</strong>
           </p>
-          <div>Hint: {nextCard?.category}</div>
-          <h4>
-            <strong>Prompt: {nextCard?.prompt}</strong>
-          </h4>
+          {nextCard?.category != null && <p>(Hint: {nextCard.category})</p>}
           {state.deck.length > 1 && (
             <button
               onClick={() => {
                 dispatch({type: 'inplay/skip'});
               }}
             >
-              Skip
+              Skip card
             </button>
           )}
+          <button
+            onClick={() => {
+              dispatch({type: 'inplay/scoring'});
+            }}
+          >
+            Done
+          </button>
+        </div>
+      )}
+      {state.stage === 'scoring' && (
+        <>
+          <p>Enter who got the correct answers</p>
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -224,7 +239,7 @@ const InPlay = (props: propsType): JSX.Element => {
             </label>
             <button>Done</button>
           </form>
-        </div>
+        </>
       )}
     </section>
   );
@@ -257,6 +272,9 @@ type actionType =
     }
   | {
       type: 'inplay/skip';
+    }
+  | {
+      type: 'inplay/scoring';
     };
 
 export default InPlay;
