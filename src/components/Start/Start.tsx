@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 import {playersType, dispatchType} from 'types';
 
 const Start = (props: propTypes): JSX.Element => {
+  const [name, setName] = useState('');
   return (
     <section>
       <section>
@@ -10,19 +11,25 @@ const Start = (props: propTypes): JSX.Element => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            const target = e.target as HTMLFormElement;
-            const data = new FormData(target);
-            for (const pair of data) {
-              if (pair[0] === 'name') {
-                props.dispatch({
-                  type: 'players/add',
-                  payload: pair[1] as string,
-                });
-              }
-            }
+            setName('');
+            props.dispatch({
+              type: 'players/add',
+              payload: name,
+            });
           }}
         >
-          <input name="name" type="text" placeholder="Write name" />
+          <input
+            onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+              const val = event.target.value;
+              if (val) {
+                setName(val);
+              }
+            }}
+            value={name}
+            name="name"
+            type="text"
+            placeholder="Write name"
+          />
           <input type="submit" value="Add"></input>
         </form>
       </section>
@@ -34,6 +41,7 @@ const Start = (props: propTypes): JSX.Element => {
           </div>
         ))}
       </section>
+      <br />
       <section>
         <button
           onClick={() => {

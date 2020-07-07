@@ -105,6 +105,7 @@ const InPlay = (props: propsType): JSX.Element => {
         <div>
           Pass the phone to{' '}
           {currentPlayer ? currentPlayer.name : props.players[0].name}
+          <br />
           <button
             onClick={() => {
               dispatch({type: 'inplay/draw'});
@@ -132,7 +133,7 @@ const InPlay = (props: propsType): JSX.Element => {
             Pick a song based on the prompt. When ready tell everyone the
             category and press play
           </p>
-          <div>Category: {nextCard?.category}</div>
+          <div>Hint: {nextCard?.category}</div>
           <h4>
             <strong>Prompt: {nextCard?.prompt}</strong>
           </h4>
@@ -191,7 +192,7 @@ const InPlay = (props: propsType): JSX.Element => {
               </select>
             </label>
             <label className={css.choice} htmlFor="category">
-              Category:{' '}
+              Prompt:{' '}
               <select name="category">
                 <option value="null">-</option>
                 {props.players.map((player, i) => (

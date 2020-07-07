@@ -58,7 +58,7 @@ function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, defaultState);
   return (
     <div className="App">
-      <h1>Amy and Tom&apos;s game</h1>
+      <h1>AOM</h1>
       {state.gameState === 'start' && (
         <Start players={state.players} dispatch={dispatch} />
       )}
