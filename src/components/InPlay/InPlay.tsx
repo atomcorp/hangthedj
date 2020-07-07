@@ -58,6 +58,17 @@ const reducer = (state: stateType, action: actionType): stateType => {
           draft.stage = 'empty';
         }
         break;
+      case 'inplay/skip':
+        {
+          if (state.deck.length > 1) {
+            const skipped = draft.deck.shift();
+            if (skipped != null) {
+              draft.deck.push(skipped);
+              draft.currentCardId = draft.deck[0];
+            }
+          }
+        }
+        break;
       default:
         break;
     }
@@ -137,6 +148,15 @@ const InPlay = (props: propsType): JSX.Element => {
           <h4>
             <strong>Prompt: {nextCard?.prompt}</strong>
           </h4>
+          {state.deck.length > 1 && (
+            <button
+              onClick={() => {
+                dispatch({type: 'inplay/skip'});
+              }}
+            >
+              Skip
+            </button>
+          )}
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -234,6 +254,9 @@ type actionType =
   | {
       type: 'inplay/endround';
       payload: string;
+    }
+  | {
+      type: 'inplay/skip';
     };
 
 export default InPlay;
