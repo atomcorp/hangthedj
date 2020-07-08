@@ -9,23 +9,28 @@ import {getId, getAvatar} from 'utils';
 import {stateType, actionTypes, gameStateType} from 'types';
 import css from './App.module.css';
 
-const defaultState = {
-  gameState: 'start' as gameStateType,
-  players: [
-    {
-      name: 'Tom',
-      score: 0,
-      id: getId(),
-      avatar: getAvatar(),
-    },
-    {
-      name: 'Amy',
-      score: 0,
-      id: getId(),
-      avatar: getAvatar(),
-    },
-  ],
-};
+const browserState = window.localStorage.getItem('currentgame');
+
+const defaultState =
+  browserState != null
+    ? JSON.parse(browserState)
+    : {
+        gameState: 'start' as gameStateType,
+        players: [
+          {
+            name: 'Tom',
+            score: 0,
+            id: getId(),
+            avatar: getAvatar(),
+          },
+          {
+            name: 'Amy',
+            score: 0,
+            id: getId(),
+            avatar: getAvatar(),
+          },
+        ],
+      };
 
 const reducer = (state: stateType, action: actionTypes): stateType => {
   const newState = immer(state, (draft) => {
@@ -57,6 +62,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
         break;
     }
   });
+  localStorage.setItem('currentgame', JSON.stringify(newState));
   return newState;
 };
 
