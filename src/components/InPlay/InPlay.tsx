@@ -123,7 +123,7 @@ const InPlay = (props: propsType): JSX.Element => {
             Pass the phone to{' '}
             {currentPlayer
               ? `${currentPlayer.avatar} ${currentPlayer.name}`
-              : `${props.players[0].name} ${props.players[0].avatar}`}
+              : `${props.players[0].avatar} ${props.players[0].name}`}
           </p>
           <br />
           <button

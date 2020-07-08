@@ -32,7 +32,10 @@ export type actionTypes =
       type: 'game/scores';
       payload: roundType;
     }
-  | {type: 'game/end'};
+  | {type: 'game/end'}
+  | {
+      type: 'game/restart';
+    };
 
 export type dispatchType = React.Dispatch<actionTypes>;
 

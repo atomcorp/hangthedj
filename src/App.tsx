@@ -7,6 +7,7 @@ import Scores from 'components/Scores/Scores';
 import {getId, getAvatar} from 'utils';
 
 import {stateType, actionTypes, gameStateType} from 'types';
+import css from './App.module.css';
 
 const defaultState = {
   gameState: 'start' as gameStateType,
@@ -27,7 +28,7 @@ const defaultState = {
 };
 
 const reducer = (state: stateType, action: actionTypes): stateType => {
-  return immer(state, (draft) => {
+  const newState = immer(state, (draft) => {
     switch (action.type) {
       case 'players/add':
         draft.players.push({
@@ -50,24 +51,51 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
       case 'game/end':
         draft.gameState = 'finished';
         break;
+      case 'game/restart':
+        return defaultState;
       default:
         break;
     }
   });
+  return newState;
 };
 
 function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, defaultState);
   return (
-    <div className="App">
-      <h1>DJ Game</h1>
+    <div>
+      <section className={css.header}>
+        <h1>DJ Game</h1>
+        <div className={css.toolbar}>
+          {state.gameState !== 'start' && (
+            <button
+              onClick={() => {
+                dispatch({type: 'game/end'});
+              }}
+            >
+              Finish
+            </button>
+          )}
+        </div>
+      </section>
       {state.gameState === 'start' && (
         <Start players={state.players} dispatch={dispatch} />
       )}
       {state.gameState === 'inplay' && (
         <InPlay players={state.players} appDispatch={dispatch} />
       )}
-      {state.gameState === 'finished' && <Scores players={state.players} />}
+      {state.gameState === 'finished' && (
+        <section>
+          <Scores players={state.players} />
+          <button
+            onClick={() => {
+              dispatch({type: 'game/restart'});
+            }}
+          >
+            Restart
+          </button>
+        </section>
+      )}
     </div>
   );
 }
