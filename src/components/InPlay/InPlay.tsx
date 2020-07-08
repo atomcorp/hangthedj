@@ -212,7 +212,7 @@ const InPlay = (props: propsType): JSX.Element => {
                 <option value="null">-</option>
                 {props.players.map((player, i) => (
                   <option key={i} value={player.id}>
-                    {player.name}
+                    {player.avatar} {player.name}
                   </option>
                 ))}
               </select>
@@ -223,7 +223,7 @@ const InPlay = (props: propsType): JSX.Element => {
                 <option value="null">-</option>
                 {props.players.map((player, i) => (
                   <option key={i} value={player.id}>
-                    {player.name}
+                    {player.avatar} {player.name}
                   </option>
                 ))}
               </select>
@@ -234,7 +234,7 @@ const InPlay = (props: propsType): JSX.Element => {
                 <option value="null">-</option>
                 {props.players.map((player, i) => (
                   <option key={i} value={player.id}>
-                    {player.name}
+                    {player.avatar} {player.name}
                   </option>
                 ))}
               </select>
