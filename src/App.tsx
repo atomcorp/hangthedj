@@ -72,16 +72,15 @@ function App(): JSX.Element {
       <section className={css.header}>
         <h1>DJ Game</h1>
         <div className={css.toolbar}>
-          {state.gameState !== 'start' ||
-            (state.gameState !== 'finished' && (
-              <button
-                onClick={() => {
-                  dispatch({type: 'game/end'});
-                }}
-              >
-                Finish
-              </button>
-            ))}
+          {state.gameState !== 'start' && state.gameState !== 'finished' && (
+            <button
+              onClick={() => {
+                dispatch({type: 'game/end'});
+              }}
+            >
+              Finish
+            </button>
+          )}
         </div>
       </section>
       {state.gameState === 'start' && (
