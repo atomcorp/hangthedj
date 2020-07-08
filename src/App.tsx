@@ -4,7 +4,7 @@ import immer from 'immer';
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
-import {getId} from 'utils';
+import {getId, getAvatar} from 'utils';
 
 import {stateType, actionTypes, gameStateType} from 'types';
 
@@ -15,11 +15,13 @@ const defaultState = {
       name: 'Tom',
       score: 0,
       id: getId(),
+      avatar: getAvatar(),
     },
     {
       name: 'Amy',
       score: 0,
       id: getId(),
+      avatar: getAvatar(),
     },
   ],
 };
@@ -32,6 +34,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
           name: action.payload,
           score: 0,
           id: getId(),
+          avatar: getAvatar(),
         });
         break;
       case 'game/start':
@@ -57,7 +60,7 @@ function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, defaultState);
   return (
     <div className="App">
-      <h1>AOM</h1>
+      <h1>DJ Game</h1>
       {state.gameState === 'start' && (
         <Start players={state.players} dispatch={dispatch} />
       )}

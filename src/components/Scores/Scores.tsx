@@ -15,7 +15,9 @@ const Scores = (props: propsTypes): JSX.Element => (
         .sort((a, b) => (a.score < b.score ? 1 : -1))
         .map((player, i) => (
           <tr key={i}>
-            <td>{player.name}</td>
+            <td>
+              {player.avatar} {player.name}
+            </td>
             <td>{player.score}</td>
           </tr>
         ))}

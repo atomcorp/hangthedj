@@ -121,7 +121,9 @@ const InPlay = (props: propsType): JSX.Element => {
           <Scores players={props.players} />
           <p>
             Pass the phone to{' '}
-            {currentPlayer ? currentPlayer.name : props.players[0].name}
+            {currentPlayer
+              ? `${currentPlayer.avatar} ${currentPlayer.name}`
+              : `${props.players[0].name} ${props.players[0].avatar}`}
           </p>
           <br />
           <button
@@ -148,8 +150,7 @@ const InPlay = (props: propsType): JSX.Element => {
       {state.stage === 'picking' && (
         <div>
           <p className={css.prompt}>
-            Choose a song that fits the theme:{' '}
-            <strong>{nextCard?.prompt}</strong>
+            Play a song that fits the theme: <strong>{nextCard?.prompt}</strong>
           </p>
           {nextCard?.category != null && <p>(Hint: {nextCard.category})</p>}
           {state.deck.length > 1 && (

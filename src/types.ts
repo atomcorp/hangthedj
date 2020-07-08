@@ -5,6 +5,7 @@ export type playerType = {
   name: string;
   score: number;
   id: string;
+  avatar: string;
 };
 
 export type cardType = {
