@@ -37,7 +37,7 @@ const reducer = (state: stateType, action: actionType): stateType => {
     switch (action.type) {
       case 'inplay/init':
         draft.cards = action.payload.cards;
-        draft.deck = action.payload.cards
+        draft.deck = [...action.payload.cards]
           .sort(() => Math.random() - 0.5)
           .map((card) => card.id);
         draft.currentPlayerId = action.payload.defaultPlayerId;
