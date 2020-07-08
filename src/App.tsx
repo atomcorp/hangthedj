@@ -9,28 +9,27 @@ import {getId, getAvatar} from 'utils';
 import {stateType, actionTypes, gameStateType} from 'types';
 import css from './App.module.css';
 
-const browserState = window.localStorage.getItem('currentgame');
+const browserState = localStorage.getItem('currentgame');
 
-const defaultState =
-  browserState != null
-    ? JSON.parse(browserState)
-    : {
-        gameState: 'start' as gameStateType,
-        players: [
-          {
-            name: 'Tom',
-            score: 0,
-            id: getId(),
-            avatar: getAvatar(),
-          },
-          {
-            name: 'Amy',
-            score: 0,
-            id: getId(),
-            avatar: getAvatar(),
-          },
-        ],
-      };
+const defaultState = {
+  gameState: 'start' as gameStateType,
+  players: [
+    {
+      name: 'Tom',
+      score: 0,
+      id: getId(),
+      avatar: getAvatar(),
+    },
+    {
+      name: 'Amy',
+      score: 0,
+      id: getId(),
+      avatar: getAvatar(),
+    },
+  ],
+};
+const initialState =
+  browserState != null ? JSON.parse(browserState) : defaultState;
 
 const reducer = (state: stateType, action: actionTypes): stateType => {
   const newState = immer(state, (draft) => {
@@ -67,7 +66,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
 };
 
 function App(): JSX.Element {
-  const [state, dispatch] = useReducer(reducer, defaultState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <div>
       <section className={css.header}>
@@ -95,6 +94,7 @@ function App(): JSX.Element {
           <Scores players={state.players} />
           <button
             onClick={() => {
+              localStorage.clear();
               dispatch({type: 'game/restart'});
             }}
           >
