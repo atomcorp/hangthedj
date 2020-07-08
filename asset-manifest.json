@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/hangthedj/static/css/main.1484ab72.chunk.css",
-    "main.js": "/hangthedj/static/js/main.6b2286ce.chunk.js",
-    "main.js.map": "/hangthedj/static/js/main.6b2286ce.chunk.js.map",
+    "main.js": "/hangthedj/static/js/main.17fcb96d.chunk.js",
+    "main.js.map": "/hangthedj/static/js/main.17fcb96d.chunk.js.map",
     "runtime-main.js": "/hangthedj/static/js/runtime-main.37e19dd2.js",
     "runtime-main.js.map": "/hangthedj/static/js/runtime-main.37e19dd2.js.map",
     "static/js/2.3288fd65.chunk.js": "/hangthedj/static/js/2.3288fd65.chunk.js",
     "static/js/2.3288fd65.chunk.js.map": "/hangthedj/static/js/2.3288fd65.chunk.js.map",
     "index.html": "/hangthedj/index.html",
-    "precache-manifest.db4e97475955be92ad2fc7181792d460.js": "/hangthedj/precache-manifest.db4e97475955be92ad2fc7181792d460.js",
+    "precache-manifest.90bdb782273d7fcf0970103b628133ac.js": "/hangthedj/precache-manifest.90bdb782273d7fcf0970103b628133ac.js",
     "service-worker.js": "/hangthedj/service-worker.js",
     "static/css/main.1484ab72.chunk.css.map": "/hangthedj/static/css/main.1484ab72.chunk.css.map",
     "static/js/2.3288fd65.chunk.js.LICENSE.txt": "/hangthedj/static/js/2.3288fd65.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.37e19dd2.js",
     "static/js/2.3288fd65.chunk.js",
     "static/css/main.1484ab72.chunk.css",
-    "static/js/main.6b2286ce.chunk.js"
+    "static/js/main.17fcb96d.chunk.js"
   ]
 }
