@@ -1,5 +1,10 @@
 .choice {
   display: block;
+  margin: 0 0 20px;
+}
+
+.choice select {
+  min-width: 200px;
 }
 
 .prompt {

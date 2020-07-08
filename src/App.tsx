@@ -3,6 +3,7 @@ import immer from 'immer';
 
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
+import Scores from 'components/Scores/Scores';
 import {getId} from 'utils';
 
 import {stateType, actionTypes, gameStateType} from 'types';
@@ -63,26 +64,7 @@ function App(): JSX.Element {
       {state.gameState === 'inplay' && (
         <InPlay players={state.players} appDispatch={dispatch} />
       )}
-      {state.gameState === 'finished' && (
-        <table>
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Score</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[...state.players]
-              .sort((a, b) => (a.score < b.score ? 1 : -1))
-              .map((player, i) => (
-                <tr key={i}>
-                  <td>{player.name}</td>
-                  <td>{player.score}</td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
-      )}
+      {state.gameState === 'finished' && <Scores players={state.players} />}
     </div>
   );
 }

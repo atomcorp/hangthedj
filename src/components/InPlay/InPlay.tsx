@@ -9,7 +9,7 @@ import {
   roundType,
 } from 'types';
 import css from './InPlay.module.css';
-import {disconnect} from 'process';
+import Scores from 'components/Scores/Scores';
 
 const defaultState = {
   cards: [],
@@ -118,6 +118,7 @@ const InPlay = (props: propsType): JSX.Element => {
     <section>
       {state.stage === 'waiting' && (
         <div>
+          <Scores players={props.players} />
           <p>
             Pass the phone to{' '}
             {currentPlayer ? currentPlayer.name : props.players[0].name}

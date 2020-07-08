@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 
-import {playersType, dispatchType} from 'types';
+import Scores from 'components/Scores/Scores';
 
+import {playersType, dispatchType} from 'types';
 import css from './Start.module.css';
 
 const Start = (props: propTypes): JSX.Element => {
@@ -38,11 +39,7 @@ const Start = (props: propTypes): JSX.Element => {
       </fieldset>
 
       <section>
-        {props.players.map((player, i) => (
-          <div key={i}>
-            {player.name} ({player.score})
-          </div>
-        ))}
+        <Scores players={props.players} />
       </section>
       <br />
       <section>
