@@ -26,7 +26,7 @@ export type roundType = {
 };
 
 export type actionTypes =
-  | {type: 'players/add'; payload: string}
+  | {type: 'players/add'; payload: {name: string; id: string; avatar: string}}
   | {type: 'game/start'}
   | {
       type: 'game/scores';
@@ -35,6 +35,7 @@ export type actionTypes =
   | {type: 'game/end'}
   | {
       type: 'game/restart';
+      payload: stateType;
     };
 
 export type dispatchType = React.Dispatch<actionTypes>;

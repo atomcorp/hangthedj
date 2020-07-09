@@ -63,13 +63,11 @@ const reducer = (state: stateType, action: actionType): stateType => {
         draft.stage = 'scoring';
         break;
       case 'inplay/skip':
-        {
-          if (state.deck.length > 1) {
-            const skipped = draft.deck.shift();
-            if (skipped != null) {
-              draft.deck.push(skipped);
-              draft.currentCardId = draft.deck[0];
-            }
+        if (state.deck.length > 1) {
+          const skipped = draft.deck.shift();
+          if (skipped != null) {
+            draft.deck.push(skipped);
+            draft.currentCardId = draft.deck[0];
           }
         }
         break;
@@ -81,6 +79,7 @@ const reducer = (state: stateType, action: actionType): stateType => {
 
 const InPlay = (props: propsType): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, defaultState);
+  const defaultPlayerId = props.players[0].id;
   useEffect(() => {
     fetch(
       'https://spreadsheets.google.com/feeds/cells/1KwGMfgab2Mq0Zy8grS6fQLp8fqu9Qoikwb8qWg7OWqc/1/public/full?alt=json'
@@ -106,10 +105,10 @@ const InPlay = (props: propsType): JSX.Element => {
         }, []);
         dispatch({
           type: 'inplay/init',
-          payload: {cards: cards, defaultPlayerId: props.players[0].id},
+          payload: {cards: cards, defaultPlayerId},
         });
       });
-  }, [props.players[0].id]);
+  }, [defaultPlayerId]);
   const currentPlayer = props.players.find(
     (player) => player.id === state.currentPlayerId
   );

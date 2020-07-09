@@ -4,42 +4,42 @@ import immer from 'immer';
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
-import {getId, getAvatar} from 'utils';
+import {getId, avatarUtils} from 'utils';
 
 import {stateType, actionTypes, gameStateType} from 'types';
 import css from './App.module.css';
 
 const browserState = localStorage.getItem('currentgame');
 
-const defaultState = {
+const defaultState = (): stateType => ({
   gameState: 'start' as gameStateType,
   players: [
     {
       name: 'Tom',
       score: 0,
       id: getId(),
-      avatar: getAvatar(),
+      avatar: avatarUtils.get(),
     },
     {
       name: 'Amy',
       score: 0,
       id: getId(),
-      avatar: getAvatar(),
+      avatar: avatarUtils.get(),
     },
   ],
-};
+});
 const initialState =
-  browserState != null ? JSON.parse(browserState) : defaultState;
+  browserState != null ? JSON.parse(browserState) : defaultState();
 
 const reducer = (state: stateType, action: actionTypes): stateType => {
   const newState = immer(state, (draft) => {
     switch (action.type) {
       case 'players/add':
         draft.players.push({
-          name: action.payload,
+          name: action.payload.name,
           score: 0,
-          id: getId(),
-          avatar: getAvatar(),
+          id: action.payload.id,
+          avatar: action.payload.avatar,
         });
         break;
       case 'game/start':
@@ -56,7 +56,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
         draft.gameState = 'finished';
         break;
       case 'game/restart':
-        return defaultState;
+        return action.payload;
       default:
         break;
     }
@@ -94,8 +94,9 @@ function App(): JSX.Element {
           <Scores players={state.players} />
           <button
             onClick={() => {
+              avatarUtils.reset();
               localStorage.clear();
-              dispatch({type: 'game/restart'});
+              dispatch({type: 'game/restart', payload: defaultState()});
             }}
           >
             Restart

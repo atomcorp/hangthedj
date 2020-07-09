@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 
 import Scores from 'components/Scores/Scores';
+import {getId, avatarUtils} from 'utils';
 
 import {playersType, dispatchType} from 'types';
 import css from './Start.module.css';
@@ -18,7 +19,11 @@ const Start = (props: propTypes): JSX.Element => {
             setName('');
             props.dispatch({
               type: 'players/add',
-              payload: name,
+              payload: {
+                name,
+                id: getId(),
+                avatar: avatarUtils.get(),
+              },
             });
           }}
         >
@@ -34,7 +39,7 @@ const Start = (props: propTypes): JSX.Element => {
             type="text"
             placeholder="Write name"
           />
-          <input type="submit" value="Add"></input>
+          <button>Add</button>
         </form>
       </fieldset>
 
