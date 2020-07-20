@@ -1,5 +1,5 @@
 /// <reference types="spotify-web-playback-sdk" />
-import React, {useReducer} from 'react';
+import React, {useReducer, useEffect} from 'react';
 import immer from 'immer';
 
 import Start from 'components/Start/Start';
@@ -7,7 +7,7 @@ import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
 import {getId, avatarUtils} from 'utils';
 
-import {stateType, actionTypes, gameStateType} from 'types';
+import {stateType, actionTypes, gameStateType, playerRefType} from 'types';
 import css from './App.module.css';
 
 const browserState = localStorage.getItem('currentgame');
@@ -66,110 +66,22 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
   return newState;
 };
 
-let token: string | null = null;
-
-const setToken = (): void => {
-  if (window.location.hash && window.location.hash[0] === '#') {
-    const params = window.location.hash.slice(1).split('&');
-    params.forEach((param) => {
-      if (param.includes('access_token')) {
-        token = param.split('=')[1];
-      }
-    });
-  }
-};
-
-type SpotyifyOptionsType = {
-  _options: {
-    name: string;
-    getOAuthToken(cb: (token: string) => void): void;
-    volume?: number;
-    id: string;
-  };
-};
-
-type playerType = {
-  spotify_uri: string;
-  playerInstance: Spotify.SpotifyPlayer & SpotyifyOptionsType;
-};
-
-const play = ({
-  spotify_uri,
-  playerInstance: {
-    _options: {getOAuthToken, id},
-  },
-}: playerType): void => {
-  getOAuthToken((access_token: string) => {
-    fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
-      method: 'PUT',
-      body: JSON.stringify({uris: [spotify_uri]}),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${access_token}`,
-      },
-    });
-  });
-};
-
-window.onSpotifyWebPlaybackSDKReady = () => {
-  const Spotify = window.Spotify;
-  setToken();
-  // You can now initialize Spotify.Player and use the SDK
-  const player = new Spotify.Player({
-    name: 'Web Playback SDK Quick Start Player',
-    getOAuthToken: (cb) => {
-      if (token) {
-        cb(token);
-      }
-    },
-  }) as Spotify.SpotifyPlayer & SpotyifyOptionsType;
-  // Error handling
-  player.addListener('initialization_error', ({message}) => {
-    console.error(message);
-  });
-  player.addListener('authentication_error', ({message}) => {
-    console.error(message);
-  });
-  player.addListener('account_error', ({message}) => {
-    console.error(message);
-  });
-  player.addListener('playback_error', ({message}) => {
-    console.error(message);
-  });
-  // Playback status updates
-  player.addListener('player_state_changed', (state) => {
-    console.log(state);
-  });
-  // Ready
-  player.addListener('ready', ({device_id}) => {
-    play({
-      playerInstance: player,
-      spotify_uri: 'spotify:track:7xGfFoTpQ2E7fRF5lN10tr',
-    });
-  });
-  // Not Ready
-  player.addListener('not_ready', ({device_id}) => {
-    console.log('Device ID has gone offline', device_id);
-  });
-  // Connect to the player!
-  player.connect();
-};
-
-function App(): JSX.Element {
+function App(props: propsType): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
+  useEffect(() => {
+    // if (token) {
+    //   startSpotify(token);
+    // }
+  }, []);
   return (
     <div>
-      <a
-        href={`https://accounts.spotify.com/authorize?client_id=5280f2bd9b014405839ea087c05c58d1&response_type=token&redirect_uri=${encodeURIComponent(
-          'http://localhost:3000/callback'
-        )}&scope=${encodeURIComponent(
-          'streaming user-read-email user-read-private user-modify-playback-state'
-        )}`}
-        target="_blank"
-        rel="noopener noreferrer"
+      <button
+        onClick={() => {
+          props.player.play();
+        }}
       >
-        Test flow
-      </a>
+        Play
+      </button>
       <section className={css.header}>
         <h1>DJ Game</h1>
         <div className={css.toolbar}>
@@ -204,8 +116,31 @@ function App(): JSX.Element {
           </button>
         </section>
       )}
+      <pre>
+        <code>
+          Debug:
+          <br />
+          {props.player.token != null ? 'Logged in' : 'Logged out'}
+          <br />
+          <a
+            href={`https://accounts.spotify.com/authorize?client_id=5280f2bd9b014405839ea087c05c58d1&response_type=token&redirect_uri=${encodeURIComponent(
+              'http://localhost:3000/callback'
+            )}&scope=${encodeURIComponent(
+              'streaming user-read-email user-read-private user-modify-playback-state'
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Authenticate
+          </a>
+        </code>
+      </pre>
     </div>
   );
 }
+
+type propsType = {
+  player: playerRefType;
+};
 
 export default App;
