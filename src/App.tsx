@@ -1,10 +1,11 @@
 /// <reference types="spotify-web-playback-sdk" />
-import React, {useReducer, useEffect} from 'react';
+import React, {useReducer, useState} from 'react';
 import immer from 'immer';
 
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
+import Search from 'components/Search/Search';
 import {getId, avatarUtils} from 'utils';
 
 import {stateType, actionTypes, gameStateType, playerRefType} from 'types';
@@ -68,11 +69,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
 
 function App(props: propsType): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
-  useEffect(() => {
-    // if (token) {
-    //   startSpotify(token);
-    // }
-  }, []);
+  const [tempPlayerToken, setTempPlayerToken] = useState(props.player.token);
   return (
     <div>
       <button
@@ -82,6 +79,8 @@ function App(props: propsType): JSX.Element {
       >
         Play
       </button>
+      <Search token={props.player.token} />
+      <hr />
       <section className={css.header}>
         <h1>DJ Game</h1>
         <div className={css.toolbar}>
@@ -122,6 +121,8 @@ function App(props: propsType): JSX.Element {
           <br />
           {props.player.token != null ? 'Logged in' : 'Logged out'}
           <br />
+          token: {tempPlayerToken}
+          <br />
           <a
             href={`https://accounts.spotify.com/authorize?client_id=5280f2bd9b014405839ea087c05c58d1&response_type=token&redirect_uri=${encodeURIComponent(
               'http://localhost:3000/callback'
@@ -133,6 +134,17 @@ function App(props: propsType): JSX.Element {
           >
             Authenticate
           </a>
+          <br />
+          <button
+            type="button"
+            onClick={() => {
+              if (props.player.token !== tempPlayerToken) {
+                setTempPlayerToken(props.player.token);
+              }
+            }}
+          >
+            Re-auth
+          </button>
         </code>
       </pre>
     </div>
