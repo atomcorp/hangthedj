@@ -65,5 +65,10 @@ export type SpotifyOptionsType = {
 export type playerRefType = {
   player: null | (Spotify.SpotifyPlayer & SpotifyOptionsType);
   token: string | null;
-  play: () => void;
+  play: (spotify_uri: string) => void;
+  pause: () => void;
+  resume: () => void;
+  isPlaying: boolean;
+  setIsPlayingListener: (callback: (bool: boolean) => void) => void;
+  isPlayingListener: null | ((bool: boolean) => void);
 };

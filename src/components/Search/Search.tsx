@@ -1,6 +1,7 @@
 import React, {useReducer} from 'react';
-
 import immer from 'immer';
+
+import player from 'spotifyInterface';
 
 const initialState = {
   searchTerm: '',
@@ -37,7 +38,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
   });
 };
 
-const Search = (props: propsType): JSX.Element => {
+const Search = (): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <section>
@@ -52,7 +53,12 @@ const Search = (props: propsType): JSX.Element => {
           </div>
           <ul>
             {state.playlistResults?.tracks.map((track, i) => (
-              <li key={i}>
+              <li
+                key={track.id}
+                onClick={() => {
+                  player.play(track.id);
+                }}
+              >
                 {track.artists.map((artist) => (
                   <span key={i}>{artist.name}</span>
                 ))}{' '}
@@ -66,7 +72,7 @@ const Search = (props: propsType): JSX.Element => {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (props.token != null) {
+            if (player.token != null) {
               fetch(
                 `https://api.spotify.com/v1/search?q=${encodeURIComponent(
                   state.searchTerm
@@ -74,7 +80,7 @@ const Search = (props: propsType): JSX.Element => {
                 {
                   headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${props.token}`,
+                    Authorization: `Bearer ${player.token}`,
                   },
                 }
               )
@@ -130,7 +136,12 @@ const Search = (props: propsType): JSX.Element => {
             <div>Tracks:</div>
             <ul>
               {state.tracks.map((track, i) => (
-                <li key={i}>
+                <li
+                  onClick={() => {
+                    player.play(track.id);
+                  }}
+                  key={track.id}
+                >
                   {track.artists.map((artist) => (
                     <span key={i}>{artist.name}</span>
                   ))}{' '}
@@ -151,7 +162,7 @@ const Search = (props: propsType): JSX.Element => {
                       {
                         headers: {
                           'Content-Type': 'application/json',
-                          Authorization: `Bearer ${props.token}`,
+                          Authorization: `Bearer ${player.token}`,
                         },
                       }
                     )
@@ -184,7 +195,7 @@ const Search = (props: propsType): JSX.Element => {
             </ul>
             {state.playlists.length === 0 && 'No playlists'}
           </div>
-          <div>
+          {/* <div>
             <div>Artists:</div>
             <ul>
               {state.artists.map((artist, i) => (
@@ -192,16 +203,14 @@ const Search = (props: propsType): JSX.Element => {
               ))}
             </ul>
             {state.artists.length === 0 && 'No artists'}
-          </div>
+          </div> */}
         </section>
       )}
     </section>
   );
 };
 
-type propsType = {
-  token: string | null;
-};
+type propsType = {};
 
 type playlistType = {
   name: string;

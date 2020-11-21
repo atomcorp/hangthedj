@@ -6,9 +6,11 @@ import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
 import Search from 'components/Search/Search';
+import Player from 'components/Player/Player';
 import {getId, avatarUtils} from 'utils';
+import player from 'spotifyInterface';
 
-import {stateType, actionTypes, gameStateType, playerRefType} from 'types';
+import {stateType, actionTypes, gameStateType} from 'types';
 import css from './App.module.css';
 
 const browserState = localStorage.getItem('currentgame');
@@ -69,20 +71,14 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
 
 function App(props: propsType): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [tempPlayerToken, setTempPlayerToken] = useState(props.player.token);
+  const [tempPlayerToken, setTempPlayerToken] = useState(player.token);
   return (
     <div>
-      <button
-        onClick={() => {
-          props.player.play();
-        }}
-      >
-        Play
-      </button>
-      <Search token={props.player.token} />
+      <Player />
+      <Search />
       <hr />
       <section className={css.header}>
-        <h1>DJ Game</h1>
+        <h1>Pass The AUX</h1>
         <div className={css.toolbar}>
           {state.gameState !== 'start' && state.gameState !== 'finished' && (
             <button
@@ -118,8 +114,7 @@ function App(props: propsType): JSX.Element {
       <pre>
         <code>
           Debug:
-          <br />
-          {props.player.token != null ? 'Logged in' : 'Logged out'}
+          {player.token != null ? 'Logged in' : 'Logged out'}
           <br />
           token: {tempPlayerToken}
           <br />
@@ -138,8 +133,8 @@ function App(props: propsType): JSX.Element {
           <button
             type="button"
             onClick={() => {
-              if (props.player.token !== tempPlayerToken) {
-                setTempPlayerToken(props.player.token);
+              if (player.token !== tempPlayerToken) {
+                setTempPlayerToken(player.token);
               }
             }}
           >
@@ -151,8 +146,6 @@ function App(props: propsType): JSX.Element {
   );
 }
 
-type propsType = {
-  player: playerRefType;
-};
+type propsType = {};
 
 export default App;

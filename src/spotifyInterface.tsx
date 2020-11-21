@@ -16,6 +16,7 @@ const setToken = (): void => {
 type playerType = {
   spotify_uri: string;
   playerInstance: Spotify.SpotifyPlayer & SpotifyOptionsType;
+  playCallback: () => void;
 };
 
 const play = ({
@@ -23,6 +24,7 @@ const play = ({
   playerInstance: {
     _options: {getOAuthToken, id},
   },
+  playCallback,
 }: playerType): void => {
   getOAuthToken((access_token: string) => {
     fetch(`https://api.spotify.com/v1/me/player/play?device_id=${id}`, {
@@ -32,6 +34,9 @@ const play = ({
         'Content-Type': 'application/json',
         Authorization: `Bearer ${access_token}`,
       },
+    }).then((res) => {
+      console.log('playing');
+      playCallback();
     });
   });
 };
@@ -39,7 +44,14 @@ const play = ({
 const playerRef: playerRefType = {
   player: null,
   token: token,
-  play: () => {},
+  play: () => null,
+  pause: () => null,
+  resume: () => null,
+  isPlaying: false,
+  setIsPlayingListener: (callback) => {
+    playerRef.isPlayingListener = callback;
+  },
+  isPlayingListener: null,
 };
 
 window.onSpotifyWebPlaybackSDKReady = () => {
@@ -57,11 +69,18 @@ window.onSpotifyWebPlaybackSDKReady = () => {
   // assign properties to the interface
   playerRef.player = player;
   playerRef.token = token;
-  playerRef.play = () => {
+  playerRef.play = (spotify_uri: string) => {
     play({
       playerInstance: player,
-      spotify_uri: 'spotify:track:7xGfFoTpQ2E7fRF5lN10tr',
+      spotify_uri: `spotify:track:${spotify_uri}`,
+      playCallback: () => {},
     });
+  };
+  playerRef.pause = () => {
+    player.pause().then(() => {});
+  };
+  playerRef.resume = () => {
+    player.resume().then(() => {});
   };
   // Error handling
   // player.addListener('initialization_error', ({message}) => {
@@ -77,9 +96,12 @@ window.onSpotifyWebPlaybackSDKReady = () => {
   //   console.error(message);
   // });
   // Playback status updates
-  // player.addListener('player_state_changed', (state) => {
-  //   console.log(state);
-  // });
+  player.addListener('player_state_changed', (state) => {
+    console.log(state);
+    if (playerRef.isPlayingListener != null) {
+      playerRef.isPlayingListener(!state.paused);
+    }
+  });
   // Ready
   player.addListener('ready', ({device_id}) => {});
   // Not Ready
