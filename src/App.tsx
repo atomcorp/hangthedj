@@ -4,7 +4,7 @@ import immer from 'immer';
 import Start from 'components/Start/Start';
 import InPlay from 'components/InPlay/InPlay';
 import Scores from 'components/Scores/Scores';
-import {getId, avatarUtils} from 'utils';
+import {avatarUtils} from 'utils';
 
 import {stateType, actionTypes, gameStateType} from 'types';
 import css from './App.module.css';
@@ -13,21 +13,9 @@ const browserState = localStorage.getItem('currentgame');
 
 const defaultState = (): stateType => ({
   gameState: 'start' as gameStateType,
-  players: [
-    {
-      name: 'Tom',
-      score: 0,
-      id: getId(),
-      avatar: avatarUtils.get(),
-    },
-    {
-      name: 'Amy',
-      score: 0,
-      id: getId(),
-      avatar: avatarUtils.get(),
-    },
-  ],
+  players: [],
 });
+
 const initialState =
   browserState != null ? JSON.parse(browserState) : defaultState();
 
