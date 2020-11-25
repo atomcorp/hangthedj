@@ -63,7 +63,7 @@ function App(): JSX.Element {
     <div>
       <section style={{minHeight: '100vh'}}>
         <section className={css.header}>
-          <h1>Pass the AUX</h1>
+          <h1>📻</h1>
           <div className={css.toolbar}>
             <Player />
           </div>
@@ -136,6 +136,13 @@ function App(): JSX.Element {
                 Finish
               </button>
             )}
+            <button
+              onClick={() => {
+                localStorage.clear();
+              }}
+            >
+              Clear cache
+            </button>
           </code>
         </pre>
       </details>

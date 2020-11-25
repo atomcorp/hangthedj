@@ -109,6 +109,7 @@ window.onSpotifyWebPlaybackSDKReady = () => {
       );
     }
   });
+  // TODO: Add a callback to alert the app
   // Ready
   player.addListener('ready', ({device_id}) => {
     console.log(device_id);

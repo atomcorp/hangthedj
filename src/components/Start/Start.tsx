@@ -49,6 +49,7 @@ const Start = (props: propTypes): JSX.Element => {
       <br />
       <section>
         <button
+          disabled={props.players.length < 1}
           onClick={() => {
             props.dispatch({type: 'game/start'});
           }}
