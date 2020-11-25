@@ -69,6 +69,12 @@ export type playerRefType = {
   pause: () => void;
   resume: () => void;
   isPlaying: boolean;
-  setIsPlayingListener: (callback: (bool: boolean) => void) => void;
-  isPlayingListener: null | ((bool: boolean) => void);
+  setIsPlayingListener: (
+    callback: (bool: boolean, nowPlaying: string | null) => void
+  ) => void;
+  isPlayingListener:
+    | null
+    | ((bool: boolean, nowPlaying: string | null) => void);
+  hasPickedTrack: boolean;
+  togglePickedTrack: () => void;
 };

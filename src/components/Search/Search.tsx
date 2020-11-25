@@ -11,6 +11,7 @@ const initialState = {
   view: 'search',
   playlistResults: null,
   artistResults: null,
+  isDirty: false,
 };
 
 const reducer = (state: stateType, action: actionTypes): stateType => {
@@ -23,6 +24,7 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
         draft.playlists = action.payload.playlists;
         draft.artists = action.payload.artists;
         draft.tracks = action.payload.tracks;
+        draft.isDirty = true;
         break;
       case 'playlist/set':
         draft.playlistResults = action.payload;
@@ -38,7 +40,43 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
   });
 };
 
-const Search = (): JSX.Element => {
+type TracksProps = {
+  tracks: trackType[] | undefined;
+  handlePick: () => void;
+};
+
+const Tracks = (props: TracksProps): JSX.Element => (
+  <div style={{maxHeight: '300px', overflow: 'auto'}}>
+    <table>
+      <tbody>
+        {props.tracks?.map((track, i) => (
+          <tr
+            key={track.id}
+            onClick={() => {
+              player.play(track.id);
+              props.handlePick();
+            }}
+          >
+            <td>
+              <strong>
+                {track.artists.map((artist, i) =>
+                  i === 0 ? (
+                    <span key={i}>{artist.name}</span>
+                  ) : (
+                    <span key={i}>, {artist.name}</span>
+                  )
+                )}
+              </strong>{' '}
+              - {track.name}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+);
+
+const Search = (props: propsType): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
     <section>
@@ -51,25 +89,16 @@ const Search = (): JSX.Element => {
           >
             ← {state.playlistResults?.name}
           </div>
-          <ul>
-            {state.playlistResults?.tracks.map((track, i) => (
-              <li
-                key={track.id}
-                onClick={() => {
-                  player.play(track.id);
-                }}
-              >
-                {track.artists.map((artist) => (
-                  <span key={i}>{artist.name}</span>
-                ))}{' '}
-                - {track.name}
-              </li>
-            ))}
-          </ul>
+          <br />
+          <Tracks
+            tracks={state.playlistResults?.tracks}
+            handlePick={props.handlePick}
+          />
         </section>
       )}
       {state.view === 'search' && (
         <form
+          style={{display: 'flex'}}
           onSubmit={(e) => {
             e.preventDefault();
             if (player.token != null) {
@@ -91,7 +120,7 @@ const Search = (): JSX.Element => {
                     type: 'search/results',
                     payload: {
                       playlists: spotifyResults.playlists.items
-                        .splice(0, 5)
+                        .splice(0, 10)
                         .map((playlist) => ({
                           id: playlist.id,
                           name: playlist.name,
@@ -120,6 +149,8 @@ const Search = (): JSX.Element => {
           }}
         >
           <input
+            style={{width: '100%'}}
+            size={10}
             value={state.searchTerm}
             onChange={(e) => {
               if (e.target != null) {
@@ -130,69 +161,58 @@ const Search = (): JSX.Element => {
           <button>Search</button>
         </form>
       )}
-      {state.view === 'search' && (
+      {state.view === 'search' && state.isDirty && (
         <section>
           <div>
-            <div>Tracks:</div>
-            <ul>
-              {state.tracks.map((track, i) => (
-                <li
-                  onClick={() => {
-                    player.play(track.id);
-                  }}
-                  key={track.id}
-                >
-                  {track.artists.map((artist) => (
-                    <span key={i}>{artist.name}</span>
-                  ))}{' '}
-                  - {track.name}
-                </li>
-              ))}
-            </ul>
+            <h3>Tracks:</h3>
+            <Tracks tracks={state.tracks} handlePick={props.handlePick} />
             {state.tracks.length === 0 && 'No tracks'}
           </div>
           <div>
-            <div>Playlists:</div>
-            <ul>
-              {state.playlists.map((playlist, i) => (
-                <li
-                  onClick={() => {
-                    fetch(
-                      `https://api.spotify.com/v1/playlists/${playlist.id}`,
-                      {
-                        headers: {
-                          'Content-Type': 'application/json',
-                          Authorization: `Bearer ${player.token}`,
-                        },
-                      }
-                    )
-                      .then((res) => res.json())
-                      .then((res) => {
-                        const playlistResults = res as playlistResultsType;
-                        dispatch({
-                          type: 'playlist/set',
-                          payload: {
-                            name: playlistResults.name,
-                            tracks: playlistResults.tracks.items.map(
-                              (item) => ({
-                                id: item.track.id,
-                                name: item.track.name,
-                                artists: item.track.artists.map((artist) => ({
-                                  name: artist.name,
-                                  id: artist.id,
-                                })),
-                              })
-                            ),
+            <h3>Playlists:</h3>
+            <table>
+              <tbody>
+                {state.playlists.map((playlist, i) => (
+                  <tr
+                    onClick={() => {
+                      fetch(
+                        `https://api.spotify.com/v1/playlists/${playlist.id}`,
+                        {
+                          headers: {
+                            'Content-Type': 'application/json',
+                            Authorization: `Bearer ${player.token}`,
                           },
+                        }
+                      )
+                        .then((res) => res.json())
+                        .then((res) => {
+                          const playlistResults = res as playlistResultsType;
+                          dispatch({
+                            type: 'playlist/set',
+                            payload: {
+                              name: playlistResults.name,
+                              tracks: playlistResults.tracks.items.map(
+                                (item) => ({
+                                  id: item.track.id,
+                                  name: item.track.name,
+                                  artists: item.track.artists.map((artist) => ({
+                                    name: artist.name,
+                                    id: artist.id,
+                                  })),
+                                })
+                              ),
+                            },
+                          });
                         });
-                      });
-                  }}
-                  key={i}
-                >
-                  {playlist.name}
-                </li>
-              ))}
-            </ul>
+                    }}
+                    key={i}
+                  >
+                    <td>{playlist.name} →</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
             {state.playlists.length === 0 && 'No playlists'}
           </div>
           {/* <div>
@@ -209,8 +229,6 @@ const Search = (): JSX.Element => {
     </section>
   );
 };
-
-type propsType = {};
 
 type playlistType = {
   name: string;
@@ -242,6 +260,7 @@ type stateType = {
     tracks: trackType[];
     name: string;
   };
+  isDirty: boolean;
 };
 
 type actionTypes =
@@ -308,6 +327,10 @@ type playlistResultsType = {
       };
     }[];
   };
+};
+
+type propsType = {
+  handlePick: () => void;
 };
 
 export default Search;

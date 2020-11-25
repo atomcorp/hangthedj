@@ -4,30 +4,35 @@ import player from 'spotifyInterface';
 
 const Player = (): JSX.Element => {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [nowPlaying, setNowPlaying] = useState('');
   useEffect(() => {
     if (player.setIsPlayingListener != null) {
-      player.setIsPlayingListener((bool: boolean) => {
+      player.setIsPlayingListener((bool: boolean, track: string | null) => {
         setIsPlaying(bool);
+        setNowPlaying(track ?? '');
       });
     }
   }, []);
   return (
     <section>
-      {isPlaying ? 'playing' : 'no playing'}
-      <button
-        onClick={() => {
-          player.play('spotify:track:7xGfFoTpQ2E7fRF5lN10tr');
-        }}
-      >
-        Play
-      </button>
-      <button
-        onClick={() => {
-          player.pause();
-        }}
-      >
-        Pause
-      </button>
+      {nowPlaying}{' '}
+      {isPlaying ? (
+        <button
+          onClick={() => {
+            player.pause();
+          }}
+        >
+          &#9208;
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            player.resume();
+          }}
+        >
+          ▶
+        </button>
+      )}
     </section>
   );
 };

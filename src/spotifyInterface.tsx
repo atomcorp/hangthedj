@@ -52,6 +52,10 @@ const playerRef: playerRefType = {
     playerRef.isPlayingListener = callback;
   },
   isPlayingListener: null,
+  hasPickedTrack: false,
+  togglePickedTrack: () => {
+    playerRef.hasPickedTrack = !playerRef.hasPickedTrack;
+  },
 };
 
 window.onSpotifyWebPlaybackSDKReady = () => {
@@ -83,27 +87,32 @@ window.onSpotifyWebPlaybackSDKReady = () => {
     player.resume().then(() => {});
   };
   // Error handling
-  // player.addListener('initialization_error', ({message}) => {
-  //   console.error(message);
-  // });
-  // player.addListener('authentication_error', ({message}) => {
-  //   console.error(message);
-  // });
-  // player.addListener('account_error', ({message}) => {
-  //   console.error(message);
-  // });
-  // player.addListener('playback_error', ({message}) => {
-  //   console.error(message);
-  // });
+  player.addListener('initialization_error', ({message}) => {
+    console.error(message);
+  });
+  player.addListener('authentication_error', ({message}) => {
+    console.error(message);
+  });
+  player.addListener('account_error', ({message}) => {
+    console.error(message);
+  });
+  player.addListener('playback_error', ({message}) => {
+    console.error(message);
+  });
   // Playback status updates
   player.addListener('player_state_changed', (state) => {
     console.log(state);
     if (playerRef.isPlayingListener != null) {
-      playerRef.isPlayingListener(!state.paused);
+      playerRef.isPlayingListener(
+        !state.paused,
+        `${state.track_window.current_track.artists[0].name} - ${state.track_window.current_track.name}`
+      );
     }
   });
   // Ready
-  player.addListener('ready', ({device_id}) => {});
+  player.addListener('ready', ({device_id}) => {
+    console.log(device_id);
+  });
   // Not Ready
   // player.addListener('not_ready', ({device_id}) => {
   //   console.log('Device ID has gone offline', device_id);
