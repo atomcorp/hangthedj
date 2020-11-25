@@ -22,7 +22,7 @@
   "plugins": ["@typescript-eslint/eslint-plugin"],
   "rules": {
     "prettier/prettier": 1,
-    "quotes": [1, "single", { "avoidEscape": true }],
+    "quotes": [1, "single", {"avoidEscape": true}],
     "arrow-parens": 1,
     "new-cap": 0,
     // "indent": ["error", 2],
@@ -34,7 +34,8 @@
         "allowExpressions": true,
         "allowTypedFunctionExpressions": true
       }
-    ]
+    ],
+    "@typescript-eslint/camelcase": 0
   },
   "settings": {
     "react": {

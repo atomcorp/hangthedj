@@ -51,3 +51,30 @@ export type googleSheetsType = {
     }[];
   };
 };
+
+// this is missing in the @types/spotify-web-playback-sdk
+export type SpotifyOptionsType = {
+  _options: {
+    name: string;
+    getOAuthToken(cb: (token: string) => void): void;
+    volume?: number;
+    id: string;
+  };
+};
+
+export type playerRefType = {
+  player: null | (Spotify.SpotifyPlayer & SpotifyOptionsType);
+  token: string | null;
+  play: (spotify_uri: string) => void;
+  pause: () => void;
+  resume: () => void;
+  isPlaying: boolean;
+  setIsPlayingListener: (
+    callback: (bool: boolean, nowPlaying: string | null) => void
+  ) => void;
+  isPlayingListener:
+    | null
+    | ((bool: boolean, nowPlaying: string | null) => void);
+  hasPickedTrack: boolean;
+  togglePickedTrack: () => void;
+};

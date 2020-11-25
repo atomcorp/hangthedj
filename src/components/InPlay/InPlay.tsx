@@ -10,13 +10,17 @@ import {
 } from 'types';
 import css from './InPlay.module.css';
 import Scores from 'components/Scores/Scores';
+import Picker from 'components/Picker/Picker';
 
-const defaultState = {
+const defaultState: stateType = {
   cards: [],
   deck: [],
   stage: 'waiting', // waiting or picking or empty
   currentPlayerId: null,
   currentCardId: null,
+  hasPicked: false,
+  rounds: 3,
+  round: 1,
 };
 
 const getNextPlayerId = (
@@ -51,13 +55,22 @@ const reducer = (state: stateType, action: actionType): stateType => {
           draft.stage = 'empty';
         }
         break;
-      case 'inplay/endround':
+      case 'inplay/endturn':
         draft.stage = 'waiting';
-        draft.currentPlayerId = action.payload;
+        draft.currentPlayerId = action.payload.nextPlayerId;
         draft.currentCardId = null;
+        draft.hasPicked = false;
+        if (action.payload.isEndOfRound) {
+          if (draft.round === state.rounds) {
+            draft.stage = 'ended';
+          } else {
+            draft.round += 1;
+          }
+        }
         if (state.deck.length === 0) {
           draft.stage = 'empty';
         }
+
         break;
       case 'inplay/scoring':
         draft.stage = 'scoring';
@@ -70,6 +83,9 @@ const reducer = (state: stateType, action: actionType): stateType => {
             draft.currentCardId = draft.deck[0];
           }
         }
+        break;
+      case 'inplay/pickedsong':
+        draft.hasPicked = true;
         break;
       default:
         break;
@@ -114,7 +130,11 @@ const InPlay = (props: propsType): JSX.Element => {
   );
   const nextCard = state.cards.find((card) => card.id === state.currentCardId);
   return (
-    <section>
+    <section style={{flex: '1 0 auto'}}>
+      <div>
+        Round: {state.round}/{state.rounds}
+      </div>
+      <br />
       {state.stage === 'waiting' && (
         <div>
           <Scores players={props.players} />
@@ -125,6 +145,7 @@ const InPlay = (props: propsType): JSX.Element => {
               : `${props.players[0].avatar} ${props.players[0].name}`}
           </p>
           <br />
+
           <button
             onClick={() => {
               dispatch({type: 'inplay/draw'});
@@ -137,6 +158,22 @@ const InPlay = (props: propsType): JSX.Element => {
       {state.stage === 'empty' && (
         <div>
           <p>You have used all the cards</p>
+          <br />
+
+          <button
+            onClick={() => {
+              props.appDispatch({type: 'game/end'});
+            }}
+          >
+            Finish
+          </button>
+        </div>
+      )}
+      {state.stage === 'ended' && (
+        <div>
+          <p>You have finished the game. Click to reveal the scores!</p>
+          <br />
+
           <button
             onClick={() => {
               props.appDispatch({type: 'game/end'});
@@ -151,7 +188,14 @@ const InPlay = (props: propsType): JSX.Element => {
           <p className={css.prompt}>
             Play a song that fits the theme: <strong>{nextCard?.prompt}</strong>
           </p>
+          <Picker
+            handlePick={() => {
+              dispatch({type: 'inplay/pickedsong'});
+            }}
+          />
           {nextCard?.category != null && <p>(Hint: {nextCard.category})</p>}
+          <br />
+
           {state.deck.length > 1 && (
             <button
               onClick={() => {
@@ -162,6 +206,7 @@ const InPlay = (props: propsType): JSX.Element => {
             </button>
           )}
           <button
+            disabled={!state.hasPicked}
             onClick={() => {
               dispatch({type: 'inplay/scoring'});
             }}
@@ -196,11 +241,18 @@ const InPlay = (props: propsType): JSX.Element => {
               });
               if (state.currentPlayerId != null) {
                 dispatch({
-                  type: 'inplay/endround',
-                  payload: getNextPlayerId(
-                    state.currentPlayerId,
-                    props.players
-                  ),
+                  type: 'inplay/endturn',
+                  payload: {
+                    nextPlayerId: getNextPlayerId(
+                      state.currentPlayerId,
+                      props.players
+                    ),
+                    isEndOfRound:
+                      props.players.findIndex(
+                        (player) => player.id === state.currentPlayerId
+                      ) ===
+                      props.players.length - 1,
+                  },
                 });
               }
             }}
@@ -238,6 +290,8 @@ const InPlay = (props: propsType): JSX.Element => {
                 ))}
               </select>
             </label>
+            <br />
+
             <button>Done</button>
           </form>
         </>
@@ -254,9 +308,12 @@ type propsType = {
 type stateType = {
   cards: cardsType; // remaining cardIds
   deck: string[];
-  stage: string;
+  stage: 'waiting' | 'picking' | 'empty' | 'scoring' | 'ended';
   currentPlayerId: null | string;
   currentCardId: null | string;
+  hasPicked: boolean;
+  rounds: number;
+  round: number;
 };
 
 type actionType =
@@ -268,14 +325,20 @@ type actionType =
       type: 'inplay/draw';
     }
   | {
-      type: 'inplay/endround';
-      payload: string;
+      type: 'inplay/endturn';
+      payload: {
+        nextPlayerId: string;
+        isEndOfRound: boolean;
+      };
     }
   | {
       type: 'inplay/skip';
     }
   | {
       type: 'inplay/scoring';
+    }
+  | {
+      type: 'inplay/pickedsong';
     };
 
 export default InPlay;
