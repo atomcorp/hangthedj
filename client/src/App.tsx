@@ -59,9 +59,70 @@ const reducer = (state: stateType, action: actionTypes): stateType => {
 function App(): JSX.Element {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [tempPlayerToken, setTempPlayerToken] = useState(player.token);
+  const [devices, setDevices] = useState('');
   return (
     <div>
       <section style={{minHeight: '100vh'}}>
+        Devices:{devices}
+        <br />
+        <button
+          onClick={() => {
+            fetch('https://api.spotify.com/v1/me/player/devices', {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${player.token}`,
+              },
+            })
+              .then(async (res) => {
+                if (res.status === 200) {
+                  return res.json();
+                } else {
+                  throw await res.json();
+                }
+              })
+              .then((res) => {
+                setDevices(
+                  res.devices
+                    .map((device: {id: string}) => device.id)
+                    .join(', ')
+                );
+                console.log(res);
+              })
+              .catch((res: {error: {status: number; message: string}}) => {
+                console.log(res.error.message);
+                setDevices(res.error.message);
+              });
+          }}
+        >
+          Devices
+        </button>
+        <button
+          onClick={() => {
+            fetch(
+              'https://api.spotify.com/v1/me/player/play?device_id=e096101ed5cf8c43fc6edd083553d8e7f66b6c6c',
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  Authorization: `Bearer ${player.token}`,
+                },
+                method: 'PUT',
+                body: JSON.stringify({
+                  uris: ['spotify:track:4qYlBtzkmby4r1N7etPnUv'],
+                }),
+              }
+            )
+              .then((res) => {
+                if (res.status === 200) {
+                  return res.json();
+                }
+              })
+              .then((res) => {
+                console.log(res);
+              });
+          }}
+        >
+          Play
+        </button>
         <section className={css.header}>
           <h1>📻</h1>
           <div className={css.toolbar}>
@@ -105,14 +166,12 @@ function App(): JSX.Element {
             <br />
             <a
               href={`https://accounts.spotify.com/authorize?client_id=5280f2bd9b014405839ea087c05c58d1&response_type=token&redirect_uri=${encodeURIComponent(
-                window.location.host === 'localhost:3000'
-                  ? 'http://localhost:3000/callback'
+                window.location.host !== 'atomcorp.github.io'
+                  ? 'http://192.168.86.37:3000'
                   : 'https://atomcorp.github.io/hangthedj/'
               )}&scope=${encodeURIComponent(
-                'streaming user-read-email user-read-private user-modify-playback-state'
+                'streaming user-read-email user-read-private user-modify-playback-state user-read-playback-state'
               )}`}
-              target="_blank"
-              rel="noopener noreferrer"
             >
               Authenticate
             </a>

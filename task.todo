@@ -1,8 +1,22 @@
-TASKS:
-  ☐ Add avatars
+Auth app: 
+  ☐ Create monorepo
+  ☐ Create server
+    ☐ Authorise Spotify application
+  ☐ Change React app
+    ☐ add home page with auth redirect
+    ☐ add login screen
+    ☐ if auth can proceed to "play" page
+
+Spotify app:
+    ☐ Authent
+
+Design:
+  ☐ create simple wireframes on paper
+  ☐ look at other apps for inspirations
+  ☐ start creating Figma design
+
+Original:
+  ✔ Add avatars @done(20-11-28 20:08)
     ✔ Emojis @done(20-07-08 22:24)
     ☐ Then cool ones
-  ☐ Add Spotify 
-
-FLOW:
-  Start screen
+  ✔ Add Spotify @done(20-11-28 20:08)
