@@ -1,7 +1,8 @@
-import React, {useState, useEffect, useReducer} from 'react';
-import {BrowserRouter as Router, Switch} from 'react-router-dom';
+import React, {useEffect, useReducer} from 'react';
 import firebase from 'firebase/app';
 import immer from 'immer';
+
+import LogIn from 'components/LogIn/LogIn';
 
 type StateType = {
   isGettingAuth: boolean;
@@ -31,22 +32,6 @@ const reducer = (state: StateType, action: actionTypes): StateType => {
 const Authentication = (): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState);
   useEffect(() => {
-    // firebase
-    //   .auth()
-    //   .signInWithEmailAndPassword(
-    //     'thomasmaxwellsmith+admin@gmail.com',
-    //     'jspr111'
-    //   )
-    //   .then((user) => {
-    //     // Signed in
-    //     // ...
-    //     console.log(user);
-    //   })
-    //   .catch((error) => {
-    //     const errorCode = error.code;
-    //     const errorMessage = error.message;
-    //     console.log(errorCode, errorMessage);
-    //   });
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
         // User is signed in, see docs for a list of available properties
@@ -69,9 +54,20 @@ const Authentication = (): JSX.Element => {
       {state.isGettingAuth && <div>Authenticating User...</div>}
       {!state.isGettingAuth &&
         (state.hasAuth ? (
-          <div>User is signed in</div>
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                firebase.auth().signOut();
+              }}
+            >
+              Sign Out
+            </button>
+          </div>
         ) : (
-          <div>No user. Sign in</div>
+          <div>
+            <LogIn />
+          </div>
         ))}
     </section>
   );
