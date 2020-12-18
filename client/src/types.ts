@@ -1,3 +1,29 @@
+type StoragePackageId = string;
+
+export type StorageUserType = {
+  email: string;
+  profilename: string;
+  packages: StoragePackageId[] | undefined;
+  spotifyAccessToken: undefined | string;
+  spotifyRefreshToken: undefined | string;
+};
+
+//
+//
+//
+//
+//
+//
+//
+// OLD
+//
+//
+//
+//
+//
+//
+//
+
 export type playersType = playerType[];
 export type cardsType = cardType[];
 

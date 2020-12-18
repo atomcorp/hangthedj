@@ -5,6 +5,7 @@ import App from './App';
 import * as serviceWorker from './serviceWorker';
 import firebase from 'firebase/app';
 import 'firebase/auth';
+import 'firebase/database';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBeqeW-lV5dg2x-vDzn6_NMN9wtkzJ_K4M',
@@ -13,6 +14,8 @@ const firebaseConfig = {
   storageBucket: 'passtheaux-3d50c.appspot.com',
   messagingSenderId: '807387430755',
   appId: '1:807387430755:web:a916cee52fde2cf36c5d56',
+  databaseURL:
+    'https://passtheaux-3d50c-default-rtdb.europe-west1.firebasedatabase.app',
 };
 
 // Initialize Firebase
