@@ -55,14 +55,10 @@ const LogIn = (): JSX.Element => {
           firebase
             .auth()
             .signInWithEmailAndPassword(state.email, state.password)
-            .then((user) => {
-              // Signed in
-              // ...
-              console.log(user);
-            })
             .catch((error) => {
               const errorCode = error.code;
               const errorMessage = error.message;
+              // eslint-disable-next-line no-console
               console.log(errorCode, errorMessage);
             });
         }}
@@ -71,6 +67,7 @@ const LogIn = (): JSX.Element => {
           Email:{' '}
           <input
             type="email"
+            required
             placeholder="Enter your email"
             value={state.email}
             onChange={(e) => {
@@ -88,6 +85,7 @@ const LogIn = (): JSX.Element => {
           Password:{' '}
           <input
             type="password"
+            required
             placeholder="Enter your password"
             value={state.password}
             onChange={(e) => {

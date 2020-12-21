@@ -1,6 +1,8 @@
 import React, {useReducer} from 'react';
 import immer from 'immer';
 
+import {createUser} from 'firebaseActions';
+
 type StateType = {
   profilename: string;
   email: string;
@@ -23,8 +25,8 @@ type actionTypes =
     };
 
 const initialState = {
-  profilename: 'Tom',
-  email: 'thomasmaxwellsmith+admin@gmail.com',
+  profilename: 'Tom Test',
+  email: 'thomasmaxwellsmith+test1@gmail.com',
   password: 'jspr111',
   isLoading: false,
 };
@@ -47,20 +49,30 @@ const reducer = (state: StateType, action: actionTypes): StateType => {
 const Register = (): JSX.Element => {
   const [state, dispatch] = useReducer(reducer, initialState);
   return (
-    <section
-      onClick={() => {
-        /**
-         * Create a user in firebase/auth and then user the id to create
-         * a storage user in firebase/storage
-         * and then log them in
-         */
-      }}
-    >
+    <section>
       <h2>Register</h2>
-      <form>
+      <form
+        onSubmit={async (e) => {
+          /**
+           * Create a user in firebase/auth and then user the id to create
+           * a storage user in firebase/storage
+           * and then log them in
+           */
+          e.preventDefault();
+          try {
+            createUser(state.password, state.email, state.profilename);
+          } catch (error) {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            // eslint-disable-next-line no-console
+            console.log(errorCode, errorMessage);
+          }
+        }}
+      >
         <label>
           Profile name:{' '}
           <input
+            required
             type="text"
             placeholder="Enter your profile name"
             value={state.profilename}
@@ -78,6 +90,7 @@ const Register = (): JSX.Element => {
         <label>
           Email:{' '}
           <input
+            required
             type="email"
             placeholder="Enter your email"
             value={state.email}
@@ -95,6 +108,7 @@ const Register = (): JSX.Element => {
         <label>
           Password:{' '}
           <input
+            required
             type="password"
             placeholder="Enter your password"
             value={state.password}
@@ -109,7 +123,7 @@ const Register = (): JSX.Element => {
             }}
           />
         </label>
-        <button>Submit</button>
+        <button disabled={true}>Submit</button>
       </form>
     </section>
   );

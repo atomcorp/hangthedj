@@ -1,5 +1,11 @@
 type StoragePackageId = string;
 
+export type AuthUserType = {
+  email: string;
+  profilename: string;
+  password: string;
+};
+
 export type StorageUserType = {
   email: string;
   profilename: string;
