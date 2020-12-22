@@ -1,5 +1,4 @@
-import React, {useReducer} from 'react';
-import immer from 'immer';
+import React from 'react';
 import {useLocation, useHistory} from 'react-router-dom';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -26,10 +25,12 @@ const Authentication = (props: AuthenticationProps): JSX.Element => {
   const hasAuth = useSelector((state: RootState) => state.user.hasAuth);
   const reduxDispatch = useDispatch();
   memoToggleUserLoginStatus(
-    (storageUser: StorageUserType) => {
-      reduxDispatch(loggedIn(storageUser));
+    (storageUser: StorageUserType, uid: string) => {
+      reduxDispatch(loggedIn({uid, ...storageUser}));
       if (location.state?.from?.pathname) {
         history.push(location.state?.from?.pathname);
+      } else if (location.pathname !== '/play/redirect') {
+        history.push('/play');
       }
     },
     () => {

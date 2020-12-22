@@ -1,7 +1,6 @@
 import React, {useReducer} from 'react';
 import immer from 'immer';
-
-import {createUser} from 'firebaseActions';
+import firebase from 'firebase/app';
 
 type StateType = {
   profilename: string;
@@ -59,8 +58,29 @@ const Register = (): JSX.Element => {
            * and then log them in
            */
           e.preventDefault();
+          dispatch({
+            type: 'credentials/submit',
+          });
           try {
-            createUser(state.password, state.email, state.profilename);
+            const response = await fetch('/api/v1/createuser', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                password: state.password,
+                email: state.email,
+                profilename: state.profilename,
+              }),
+            });
+            if (response.status === 200) {
+              firebase
+                .auth()
+                .signInWithEmailAndPassword(state.email, state.password);
+            } else {
+              // TODO: FAILED, show error message
+            }
+            // createUser(state.password, state.email, state.profilename);
           } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -123,7 +143,7 @@ const Register = (): JSX.Element => {
             }}
           />
         </label>
-        <button>Submit</button>
+        <button disabled={state.isLoading}>Submit</button>
       </form>
     </section>
   );

@@ -6,11 +6,14 @@ import {RootState} from 'rootReducer';
 
 const Play = (): JSX.Element => {
   const name = useSelector((state: RootState) => state.user.profilename);
+  const uid = useSelector((state: RootState) => state.user.uid);
   return (
     <section>
       Play
       <div>
-        <h3>Hello {name}</h3>
+        <h3>
+          Hello {name} - {uid}
+        </h3>
         <button
           type="button"
           onClick={() => {

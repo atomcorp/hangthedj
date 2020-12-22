@@ -2,38 +2,13 @@ import firebase from 'firebase/app';
 
 import {StorageUserType} from 'types';
 
-export const createUser = async (
-  password: string,
-  email: string,
-  profilename: string
-): Promise<void> => {
-  // 1. create user in Firebase Auth
-  const {user} = await firebase
-    .auth()
-    .createUserWithEmailAndPassword(email, password);
-  if (user) {
-    // 2. create user in Firebase database, using Auth Id
-    const storageUser = await firebase.database().ref(`users/${user.uid}`).set({
-      email: email,
-      profilename: profilename,
-      packages: [],
-      spotifyAccessToken: null,
-      spotifyRefreshToken: null,
-    });
-    // log user in
-    if (storageUser) {
-      firebase.auth().signInWithEmailAndPassword(email, password);
-    }
-  }
-};
-
 export const toggleUserLoginStatus = (): ((
-  loginCallback: (user: StorageUserType) => void,
+  loginCallback: (user: StorageUserType, uid: string) => void,
   logoutCallback: () => void,
   done: () => void
 ) => void) => {
   const state: {
-    loginCallback: null | ((user: StorageUserType) => void);
+    loginCallback: null | ((user: StorageUserType, uid: string) => void);
     logoutCallback: null | (() => void);
     isInit: boolean;
     done: null | (() => void);
@@ -43,11 +18,7 @@ export const toggleUserLoginStatus = (): ((
     isInit: false,
     done: null,
   };
-  return (
-    loginCallback: (user: StorageUserType) => void,
-    logoutCallback: () => void,
-    done: () => void
-  ) => {
+  return (loginCallback, logoutCallback, done) => {
     state.loginCallback = loginCallback;
     state.logoutCallback = logoutCallback;
     state.done = done;
@@ -64,7 +35,7 @@ export const toggleUserLoginStatus = (): ((
           const storageUser = snapshot.val() as StorageUserType | null;
           if (storageUser != null) {
             if (state.loginCallback != null) {
-              state.loginCallback(storageUser);
+              state.loginCallback(storageUser, authUser.uid);
             }
           } else {
             if (state.logoutCallback != null) {
