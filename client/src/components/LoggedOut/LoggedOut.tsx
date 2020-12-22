@@ -7,6 +7,7 @@ import css from './LoggedOut.module.css';
 
 const LoggedOut = (): JSX.Element => (
   <section className={css.container}>
+    Logged out
     <LogIn />
     <Register />
   </section>

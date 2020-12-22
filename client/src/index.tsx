@@ -1,11 +1,15 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import * as serviceWorker from './serviceWorker';
+import {BrowserRouter as Router} from 'react-router-dom';
+import {Provider} from 'react-redux';
 import firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/database';
+
+import store from 'store';
+import './index.css';
+import App from './App';
+import * as serviceWorker from './serviceWorker';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyBeqeW-lV5dg2x-vDzn6_NMN9wtkzJ_K4M',
@@ -23,7 +27,11 @@ firebase.initializeApp(firebaseConfig);
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <Provider store={store}>
+      <Router>
+        <App />
+      </Router>
+    </Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

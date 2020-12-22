@@ -12,6 +12,8 @@
   "dependencies": {
     "@types/node-fetch": "^2.5.7",
     "express": "^4.17.1",
+    "express-validator": "^6.8.1",
+    "helmet": "^4.2.0",
     "node-fetch": "^2.6.1"
   },
   "devDependencies": {

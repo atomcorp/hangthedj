@@ -9,10 +9,12 @@ const SpotifyRedirect = (): JSX.Element => {
     if (location.search.length > 0) {
       const searchParams = new URLSearchParams(location.search);
       if (searchParams.get('error')) {
+        // eslint-disable-next-line no-console
         console.error('show error', searchParams.get('error'));
       } else if (
         searchParams.get('state') === localStorage.getItem('authState')
       ) {
+        // eslint-disable-next-line no-console
         console.log('state matches');
         fetch('/api/v1/getspotifytoken', {
           method: 'POST',
@@ -25,6 +27,7 @@ const SpotifyRedirect = (): JSX.Element => {
           }),
         });
       } else {
+        // eslint-disable-next-line no-console
         console.log('state error');
       }
     }

@@ -1,70 +1,52 @@
-import React, {useEffect, useReducer} from 'react';
+import React, {useReducer} from 'react';
 import immer from 'immer';
+import {useLocation, useHistory} from 'react-router-dom';
+import {useDispatch, useSelector} from 'react-redux';
 
-import LoggedOut from 'components/LoggedOut/LoggedOut';
+import {loggedIn, loggedOut} from 'reducers/user';
 import {StorageUserType} from 'types';
+import {RootState} from 'rootReducer';
 import {toggleUserLoginStatus} from 'firebaseActions';
+import {useState} from 'react';
 
-type StateType = {
-  isGettingAuth: boolean;
-  hasAuth: boolean;
-  displayname: string;
-};
-
-type actionTypes =
-  | {type: 'auth/loggedIn'; payload: string}
-  | {type: 'auth/loggedOut'};
-
-const initialState = {
-  isGettingAuth: true,
-  hasAuth: false,
-  displayname: '',
-};
-
-const reducer = (state: StateType, action: actionTypes): StateType => {
-  return immer(state, (draftState: StateType) => {
-    switch (action.type) {
-      case 'auth/loggedIn':
-        draftState.isGettingAuth = false;
-        draftState.hasAuth = true;
-        draftState.displayname = action.payload;
-        break;
-      case 'auth/loggedOut':
-        draftState.isGettingAuth = false;
-        draftState.hasAuth = false;
-        draftState.displayname = '';
-        break;
-      default:
-        break;
-    }
-  });
+type locationType = {
+  from?: {pathname: string};
 };
 
 type AuthenticationProps = {
   children: JSX.Element;
 };
 
+const memoToggleUserLoginStatus = toggleUserLoginStatus();
+
 const Authentication = (props: AuthenticationProps): JSX.Element => {
-  const [state, dispatch] = useReducer(reducer, initialState);
-  useEffect(() => {
-    toggleUserLoginStatus(
-      (storageUser: StorageUserType) => {
-        dispatch({
-          type: 'auth/loggedIn',
-          payload: storageUser.profilename,
-        });
-      },
-      () => {
-        dispatch({type: 'auth/loggedOut'});
+  const [isGettingAuth, setGettingAuth] = useState(true);
+  const history = useHistory();
+  const location = useLocation<locationType>();
+  const hasAuth = useSelector((state: RootState) => state.user.hasAuth);
+  const reduxDispatch = useDispatch();
+  memoToggleUserLoginStatus(
+    (storageUser: StorageUserType) => {
+      reduxDispatch(loggedIn(storageUser));
+      if (location.state?.from?.pathname) {
+        history.push(location.state?.from?.pathname);
       }
-    );
-  }, []);
+    },
+    () => {
+      reduxDispatch(loggedOut());
+    },
+    () => {
+      setGettingAuth(false);
+    }
+  );
   return (
-    <section>
-      <h3>Authentication</h3>
-      {state.isGettingAuth && <div>Authenticating User...</div>}
-      {!state.isGettingAuth && (state.hasAuth ? props.children : <LoggedOut />)}
-    </section>
+    <>
+      {!hasAuth && isGettingAuth ? (
+        <div style={{background: 'red'}}>Authenticating User...</div>
+      ) : (
+        props.children
+      )}
+    </>
   );
 };
 

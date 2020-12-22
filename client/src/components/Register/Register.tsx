@@ -123,7 +123,7 @@ const Register = (): JSX.Element => {
             }}
           />
         </label>
-        <button disabled={true}>Submit</button>
+        <button>Submit</button>
       </form>
     </section>
   );
