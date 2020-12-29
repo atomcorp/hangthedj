@@ -2,6 +2,46 @@ import firebase from 'firebase/app';
 
 import {StorageUserType} from 'types';
 
+export const createUser = async (
+  password: string,
+  email: string,
+  profilename: string
+): Promise<void> => {
+  try {
+    // 1. create user in Firebase Auth
+    const {user} = await firebase
+      .auth()
+      .createUserWithEmailAndPassword(email, password);
+    if (user) {
+      // 2. create user in Firebase database, using Auth Id
+      await firebase
+        .database()
+        .ref(`users/${user.uid}`)
+        .set(
+          {
+            email: email,
+            profilename: profilename,
+            packages: [],
+            spotifyAccessToken: null,
+            spotifyRefreshToken: null,
+          },
+          (error) => {
+            if (!error) {
+              firebase.auth().signInWithEmailAndPassword(email, password);
+            } else {
+              throw new Error('Storage user creationg failed');
+            }
+          }
+        );
+      // log user in
+    } else {
+      throw new Error('System user creationg failed');
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 export const toggleUserLoginStatus = (): ((
   loginCallback: (user: StorageUserType, uid: string) => void,
   logoutCallback: () => void,

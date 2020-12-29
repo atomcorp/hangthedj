@@ -113,74 +113,7 @@ app.post(
     main();
   }
 );
-app.post(
-  "/api/v1/createuser",
-  checkSchema({
-    password: {
-      in: ["body"],
-      isEmpty: {
-        negated: true,
-      },
-    },
-    profilename: {
-      in: ["body"],
-      escape: true,
-      isEmpty: {
-        negated: true,
-      },
-    },
-    email: {
-      in: ["body"],
-      isEmail: true,
-      isEmpty: {
-        negated: true,
-      },
-      toLowerCase: true,
-    },
-  }),
-  (req, res) => {
-    console.log(req.body);
-    const main = async () => {
-      try {
-        // 1. create user in Firebase Auth
-        const { user } = await firebase
-          .auth()
-          .createUserWithEmailAndPassword(req.body.email, req.body.password);
-        if (user) {
-          // 2. create user in Firebase database, using Auth Id
-          firebase
-            .database()
-            .ref(`users/${user.uid}`)
-            .set(
-              {
-                email: req.body.email,
-                profilename: req.body.profilename,
-                packages: [],
-                spotifyAccessToken: null,
-                spotifyRefreshToken: null,
-              },
-              (error) => {
-                if (!error) {
-                  res.status(200).send();
-                } else {
-                  throw new Error(error.message);
-                }
-              }
-            );
-        } else {
-          throw new Error("Failed to create authenticated user");
-        }
-      } catch (error) {
-        console.log(error);
-        res.status(500).send({
-          error: true,
-          message: error.message,
-        });
-      }
-    };
-    main();
-  }
-);
+
 app.listen(PORT, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);
 });

@@ -26,6 +26,8 @@ const userSlice = createSlice({
       state.email = action.payload.email;
       state.profilename = action.payload.profilename;
       state.uid = action.payload.uid;
+      state.spotifyAccessToken = action.payload.spotifyAccessToken;
+      state.spotifyRefreshToken = action.payload.spotifyRefreshToken;
     },
     loggedOut(state) {
       state.hasAuth = false;

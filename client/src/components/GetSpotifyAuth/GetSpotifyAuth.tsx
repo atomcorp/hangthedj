@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 
 import {IS_DEBUG} from 'App';
+import {useHistory} from 'react-router-dom';
 
 const apiBase =
   process.env.NODE_ENV === 'development'
@@ -17,16 +18,15 @@ const buildAuthUrl = (randomString: string): string =>
   )}&state=${randomString}&show_dialog=${IS_DEBUG}`;
 
 const GetSpotifyAuth = (): JSX.Element => {
-  const [authUrl, setAuthUrl] = useState('');
-  useEffect(() => {
+  const onClick = (): void => {
     const randomString = Math.random().toString(36).substring(7);
     localStorage.setItem('authState', randomString);
-    setAuthUrl(buildAuthUrl(randomString));
-  }, []);
+    window.location.assign(buildAuthUrl(randomString));
+  };
   return (
     <section>
       <div>
-        <a href={authUrl}>GetSpotifyAuth</a>
+        <button onClick={onClick}>Get Spotify Auth</button>
       </div>
     </section>
   );

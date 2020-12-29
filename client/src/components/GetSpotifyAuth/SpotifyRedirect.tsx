@@ -1,10 +1,12 @@
 import React, {useEffect} from 'react';
 import {useSelector} from 'react-redux';
+import {useHistory} from 'react-router-dom';
 
 import {RootState} from 'rootReducer';
 
 const SpotifyRedirect = (): JSX.Element => {
   const uid = useSelector((state: RootState) => state.user.uid);
+  const history = useHistory();
   useEffect(() => {
     // https://developer.spotify.com/documentation/general/guides/authorization-guide/#authorization-code-flow
     // Spotify should return "code" and "state"
@@ -32,13 +34,12 @@ const SpotifyRedirect = (): JSX.Element => {
             });
             // TODO: this should just get a 200 and then update a hasSpotify prop in User
             const response = (await getspotifytoken.json()) as {
-              access_token: string;
-              refresh_token: string;
+              status: number;
               error?: string;
             };
-            if (!response.error) {
+            if (response.status === 200) {
               // eslint-disable-next-line no-console
-              console.log(response);
+              history.push('/test');
             } else {
               throw response.error;
             }
