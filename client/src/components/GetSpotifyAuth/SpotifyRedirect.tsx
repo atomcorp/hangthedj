@@ -1,11 +1,11 @@
 import React, {useEffect} from 'react';
 import {useSelector} from 'react-redux';
 import {useHistory} from 'react-router-dom';
+import firebase from 'firebase/app';
 
 import {RootState} from 'rootReducer';
 
 const SpotifyRedirect = (): JSX.Element => {
-  const uid = useSelector((state: RootState) => state.user.uid);
   const history = useHistory();
   useEffect(() => {
     // https://developer.spotify.com/documentation/general/guides/authorization-guide/#authorization-code-flow
@@ -22,26 +22,52 @@ const SpotifyRedirect = (): JSX.Element => {
           // eslint-disable-next-line no-console
           console.log('state matches');
           try {
-            const getspotifytoken = await fetch('/api/v1/getspotifytoken', {
+            const response = await fetch('/api/v1/createspotifytoken', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
                 code: searchParams.get('code'),
-                uid,
               }),
             });
-            // TODO: this should just get a 200 and then update a hasSpotify prop in User
-            const response = (await getspotifytoken.json()) as {
-              status: number;
-              error?: string;
-            };
             if (response.status === 200) {
-              // eslint-disable-next-line no-console
-              history.push('/test');
+              const tokens = (await response.json()) as {
+                spotifyAccessToken: string;
+                spotifyRefreshToken: string;
+                spotifyAccessTokenExpiresIn: string;
+              };
+              const currentUser = firebase.auth().currentUser;
+              firebase
+                .database()
+                .ref(`users/${currentUser?.uid}`)
+                .update(
+                  {
+                    // spotifyAccessToken: tokens.spotifyAccessToken,
+                    spotifyRefreshToken: tokens.spotifyRefreshToken,
+                    // spotifyAccessTokenExpiresIn:
+                    //   tokens.spotifyAccessTokenExpiresIn,
+                  },
+                  (error) => {
+                    localStorage.removeItem('authState');
+                    if (!error) {
+                      // set short lived spotify token and expiry date
+                      localStorage.setItem(
+                        'spotifyAccessToken',
+                        tokens.spotifyAccessToken
+                      );
+                      localStorage.setItem(
+                        'spotifyAccessTokenExpiresIn',
+                        tokens.spotifyAccessTokenExpiresIn
+                      );
+                      history.push('/test');
+                    } else {
+                      throw new Error(error.message);
+                    }
+                  }
+                );
             } else {
-              throw response.error;
+              throw response.statusText;
             }
           } catch (error) {
             // eslint-disable-next-line no-console
@@ -54,7 +80,7 @@ const SpotifyRedirect = (): JSX.Element => {
       }
     };
     main();
-  }, [uid]);
+  }, []);
   return <section>SpotifyRedirect</section>;
 };
 

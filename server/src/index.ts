@@ -2,23 +2,6 @@ import * as express from "express";
 import fetch from "node-fetch";
 import * as helmet from "helmet";
 import { checkSchema } from "express-validator";
-import firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/database";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBeqeW-lV5dg2x-vDzn6_NMN9wtkzJ_K4M",
-  authDomain: "passtheaux-3d50c.firebaseapp.com",
-  projectId: "passtheaux-3d50c",
-  storageBucket: "passtheaux-3d50c.appspot.com",
-  messagingSenderId: "807387430755",
-  appId: "1:807387430755:web:a916cee52fde2cf36c5d56",
-  databaseURL:
-    "https://passtheaux-3d50c-default-rtdb.europe-west1.firebasedatabase.app",
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
 
 const app = express();
 
@@ -29,27 +12,20 @@ const PORT = 3001;
 const client_id = "5280f2bd9b014405839ea087c05c58d1";
 const client_secret = "9ebfb80c60314a5b9eaf6870703c161c";
 
+const authorizationString = `Basic ${Buffer.from(
+  `${client_id}:${client_secret}`
+).toString("base64")}`;
+
 const apiBase =
   process.env.NODE_ENV === "development"
     ? "http://192.168.86.37:3000"
     : "https://www.atomcorp.dev";
 export const redirectURI = `${apiBase}/play/redirect`;
 
-app.get("/", (req, res) => res.send("Express + TypeScript Server. Hi!"));
-app.get("/api/v1/test", (req, res) =>
-  res.send("Express + TypeScript Server. Hi!")
-);
 app.post(
-  "/api/v1/getspotifytoken",
+  "/api/v1/createspotifytoken",
   checkSchema({
     code: {
-      in: ["body"],
-      escape: true,
-      isEmpty: {
-        negated: true,
-      },
-    },
-    uid: {
       in: ["body"],
       escape: true,
       isEmpty: {
@@ -69,33 +45,19 @@ app.post(
               body: `grant_type=authorization_code&code=${req.body.code}&redirect_uri=${redirectURI}`,
               headers: {
                 "Content-Type": "application/x-www-form-urlencoded",
-                Authorization: `Basic ${Buffer.from(
-                  `${client_id}:${client_secret}`
-                ).toString("base64")}`,
+                Authorization: authorizationString,
               },
             }
           );
           const tokens = await getTokens.json();
-          console.log(tokens);
           if (!tokens.error) {
-            firebase
-              .database()
-              .ref(`users/${req.body.uid}`)
-              .update(
-                {
-                  spotifyAccessToken: tokens.access_token,
-                  spotifyRefreshToken: tokens.refresh_token,
-                },
-                (error) => {
-                  if (!error) {
-                    res.send({
-                      status: 200,
-                    });
-                  } else {
-                    throw new Error(error.message);
-                  }
-                }
-              );
+            const expiryDate = new Date();
+            expiryDate.setHours(expiryDate.getHours() + 1);
+            res.status(200).send({
+              spotifyAccessToken: tokens.access_token,
+              spotifyRefreshToken: tokens.refresh_token,
+              spotifyAccessTokenExpiresIn: expiryDate.toISOString(),
+            });
           } else {
             throw new Error(tokens.error_description);
           }
@@ -104,15 +66,42 @@ app.post(
         }
       } catch (error) {
         console.log(error);
-        res.status(500).send({
-          error: true,
-          message: error.message,
-        });
+        res.status(500).statusMessage(error.message);
       }
     };
     main();
   }
 );
+
+app.post("/api/v1/refreshspotifytoken", async (req, res) => {
+  try {
+    if (req.body.spotifyRefreshToken) {
+      const response = await fetch(`https://accounts.spotify.com/api/token`, {
+        method: "POST",
+        body: `grant_type=refresh_token&refresh_token=${req.body.spotifyRefreshToken}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: authorizationString,
+        },
+      });
+      if (response.status === 200) {
+        const tokens = await response.json();
+        const expiryDate = new Date();
+        expiryDate.setHours(expiryDate.getHours() + 1);
+        res.status(200).send({
+          spotifyAccessToken: tokens.access_token,
+          spotifyAccessTokenExpiresIn: expiryDate.toISOString(),
+        });
+      } else {
+        throw "refresh_token failed";
+      }
+    } else {
+      throw "no token provided";
+    }
+  } catch (error) {
+    res.status(500).send();
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`⚡️[server]: Server is running at http://localhost:${PORT}`);

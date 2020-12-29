@@ -10,7 +10,6 @@ export type StorageUserType = {
   email: string;
   profilename: string;
   packages: StoragePackageId[] | undefined;
-  spotifyAccessToken: undefined | string;
   spotifyRefreshToken: undefined | string;
 };
 

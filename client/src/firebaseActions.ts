@@ -97,3 +97,88 @@ export const toggleUserLoginStatus = (): ((
     }
   };
 };
+
+const testDevices = (spotifyToken: string): void => {
+  fetch('https://api.spotify.com/v1/me/player/devices', {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${spotifyToken}`,
+    },
+  })
+    .then(async (res) => {
+      if (res.status === 200) {
+        return res.json();
+      } else {
+        throw await res.json();
+      }
+    })
+    .then((res) => {
+      console.log(res);
+    })
+    .catch((res: {error: {status: number; message: string}}) => {
+      console.log(res.error.message);
+    });
+};
+
+export const makeSpotifyRequest = async (tries?: number): Promise<void> => {
+  try {
+    const spotifyAccessTokenExpiresIn = localStorage.getItem(
+      'spotifyAccessTokenExpiresIn'
+    );
+    if (
+      spotifyAccessTokenExpiresIn &&
+      new Date(spotifyAccessTokenExpiresIn).getTime() > new Date().getTime()
+    ) {
+      // token is fresh, should be OK
+      const spotifyAccessToken = localStorage.getItem('spotifyAccessToken');
+      if (spotifyAccessToken) {
+        // need another check here if the token fails
+        testDevices(spotifyAccessToken);
+      }
+    } else {
+      // request a new accessToken using the refresh token, and try again (3x)
+      const currentUser = firebase.auth().currentUser;
+      const snapshot = await firebase
+        .database()
+        .ref('/users/' + currentUser?.uid)
+        .once('value');
+      const storageUser = snapshot.val() as StorageUserType | null;
+      if (storageUser) {
+        const response = await fetch('/api/v1/refreshspotifytoken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            spotifyRefreshToken: storageUser.spotifyRefreshToken,
+          }),
+        });
+        if (response.status === 200) {
+          const tokens = (await response.json()) as {
+            spotifyAccessToken: string;
+            spotifyAccessTokenExpiresIn: string;
+          };
+          localStorage.setItem('spotifyAccessToken', tokens.spotifyAccessToken);
+          localStorage.setItem(
+            'spotifyAccessTokenExpiresIn',
+            tokens.spotifyAccessTokenExpiresIn
+          );
+          if (tries == null || tries < 3) {
+            tries = tries == null ? 1 : ++tries;
+            makeSpotifyRequest(tries);
+          }
+        } else {
+          throw new Error(response.statusText);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('makeSpotifyRequest (func): ', error);
+  }
+};
+
+export const signOut = (): void => {
+  firebase.auth().signOut();
+  localStorage.removeItem('spotifyAccessToken');
+  localStorage.removeItem('spotifyAccessTokenExpiresIn');
+};

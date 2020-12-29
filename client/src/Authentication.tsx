@@ -25,8 +25,8 @@ const Authentication = (props: AuthenticationProps): JSX.Element => {
   const hasAuth = useSelector((state: RootState) => state.user.hasAuth);
   const reduxDispatch = useDispatch();
   memoToggleUserLoginStatus(
-    (storageUser: StorageUserType, uid: string) => {
-      reduxDispatch(loggedIn({uid, ...storageUser}));
+    (storageUser: StorageUserType) => {
+      reduxDispatch(loggedIn(storageUser));
       if (location.state?.from?.pathname) {
         history.push(location.state?.from?.pathname);
       } else if (location.pathname !== '/play/redirect') {
