@@ -1,6 +1,5 @@
 import React, {useReducer} from 'react';
 import immer from 'immer';
-import firebase from 'firebase/app';
 
 import {createUser} from 'firebaseActions';
 

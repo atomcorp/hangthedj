@@ -113,9 +113,11 @@ const testDevices = (spotifyToken: string): void => {
       }
     })
     .then((res) => {
+      // eslint-disable-next-line no-console
       console.log(res);
     })
     .catch((res: {error: {status: number; message: string}}) => {
+      // eslint-disable-next-line no-console
       console.log(res.error.message);
     });
 };
@@ -173,7 +175,66 @@ export const makeSpotifyRequest = async (tries?: number): Promise<void> => {
       }
     }
   } catch (error) {
-    console.error('makeSpotifyRequest (func): ', error);
+    // eslint-disable-next-line no-console
+    console.error(error);
+  }
+};
+
+export const returnSpotifyAccessToken = async (
+  tries?: number
+): Promise<string | null | void> => {
+  try {
+    const spotifyAccessTokenExpiresIn = localStorage.getItem(
+      'spotifyAccessTokenExpiresIn'
+    );
+    if (
+      spotifyAccessTokenExpiresIn &&
+      new Date(spotifyAccessTokenExpiresIn).getTime() > new Date().getTime()
+    ) {
+      // token is fresh, should be OK
+      const spotifyAccessToken = localStorage.getItem('spotifyAccessToken');
+      if (spotifyAccessToken) {
+        // need another check here if the token fails
+        return spotifyAccessToken;
+      }
+    } else {
+      // request a new accessToken using the refresh token, and try again (3x)
+      const currentUser = firebase.auth().currentUser;
+      const snapshot = await firebase
+        .database()
+        .ref('/users/' + currentUser?.uid)
+        .once('value');
+      const storageUser = snapshot.val() as StorageUserType | null;
+      if (storageUser) {
+        const response = await fetch('/api/v1/refreshspotifytoken', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            spotifyRefreshToken: storageUser.spotifyRefreshToken,
+          }),
+        });
+        if (response.status === 200) {
+          const tokens = (await response.json()) as {
+            spotifyAccessToken: string;
+            spotifyAccessTokenExpiresIn: string;
+          };
+          localStorage.setItem('spotifyAccessToken', tokens.spotifyAccessToken);
+          localStorage.setItem(
+            'spotifyAccessTokenExpiresIn',
+            tokens.spotifyAccessTokenExpiresIn
+          );
+          if (tries == null || tries < 3) {
+            tries = tries == null ? 1 : ++tries;
+            return makeSpotifyRequest(tries);
+          }
+        }
+      }
+    }
+    return null;
+  } catch (error) {
+    return null;
   }
 };
 

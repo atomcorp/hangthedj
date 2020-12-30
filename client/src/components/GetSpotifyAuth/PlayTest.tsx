@@ -1,7 +1,5 @@
 import React from 'react';
-import {useSelector} from 'react-redux';
 
-import {RootState} from 'rootReducer';
 import {makeSpotifyRequest} from 'firebaseActions';
 
 const PlayTest = (): JSX.Element => {
@@ -35,6 +33,7 @@ const PlayTest = (): JSX.Element => {
               }
             })
             .then((res) => {
+              // eslint-disable-next-line no-console
               console.log(res);
             });
         }}

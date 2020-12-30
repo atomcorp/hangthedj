@@ -11,9 +11,9 @@ type UserState = {
 
 const initialState: UserState = {
   hasAuth: false,
-  email: '',
+  email: '', // TODO: remove this, should probably just request if needed
   profilename: '',
-  packages: [],
+  packages: [], // TODO: remove this, should probably just request if needed
 };
 
 const userSlice = createSlice({

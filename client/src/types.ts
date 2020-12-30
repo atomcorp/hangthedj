@@ -13,6 +13,30 @@ export type StorageUserType = {
   spotifyRefreshToken: undefined | string;
 };
 
+type PackageCategoryId = string;
+type PackageCategoryOptionId = string;
+
+export type PackageCategoryOptions = {
+  id: PackageCategoryOptionId;
+  name: string;
+  visible: boolean;
+};
+
+export type PackageCategory = {
+  id: PackageCategoryId;
+  name: string; // eg Decade, Dance craze, Covers etc
+  options: PackageCategoryOptionId[];
+  description: string;
+  visible: boolean;
+};
+
+export type Package = {
+  name: string; // eg Hard, Easy, Rap etc
+  id: string;
+  categories: PackageCategoryId[];
+  visible: boolean;
+};
+
 //
 //
 //

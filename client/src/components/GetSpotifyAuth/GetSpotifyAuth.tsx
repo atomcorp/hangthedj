@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 
 import {IS_DEBUG} from 'App';
-import {useHistory} from 'react-router-dom';
 
 const apiBase =
   process.env.NODE_ENV === 'development'

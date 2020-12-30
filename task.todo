@@ -1,19 +1,26 @@
 Auth app: 
-  ☐ Create monorepo
-  ☐ Create server
-    ☐ Authorise Spotify application
-  ☐ Change React app
-    ☐ add home page with auth redirect
-    ☐ add login screen
-    ☐ if auth can proceed to "play" page
+  ✔ Create monorepo @done(20-12-30 20:03)
+  ✔ Create server @done(20-12-30 20:03)
+    ✔ Authorise Spotify application @done(20-12-30 20:03)
+  ✔ Change React app @done(20-12-30 20:03)
+    ✔ add home page with auth redirect @done(20-12-30 20:03)
+    ✔ add login screen @done(20-12-30 20:03)
+    ✔ if auth can proceed to "play" page @done(20-12-30 20:03)
 
 Spotify app:
-    ☐ Authent
+    ✔ Authent @done(20-12-30 20:03)
 
 Design:
   ☐ create simple wireframes on paper
   ☐ look at other apps for inspirations
   ☐ start creating Figma design
+
+Package Manager:
+  ☐ Needs to hold Packages and content
+  ☐ Need to be able to add/remove/hide
+    ☐ Packages
+      ☐ Categories
+        ☐ Options
 
 Original:
   ✔ Add avatars @done(20-11-28 20:08)

@@ -1,9 +1,6 @@
 import React, {useEffect} from 'react';
-import {useSelector} from 'react-redux';
 import {useHistory} from 'react-router-dom';
 import firebase from 'firebase/app';
-
-import {RootState} from 'rootReducer';
 
 const SpotifyRedirect = (): JSX.Element => {
   const history = useHistory();
